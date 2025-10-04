@@ -44,5 +44,5 @@ Follow these steps to set up the project on your local machine.
 
 **1. Clone the Repository**
 ```bash
-git clone <your_repository_url>
+git clone https://github.com/Shash-135/Synca.git
 cd synca
