@@ -1,0 +1,2 @@
+# synca
+College Mini Project
