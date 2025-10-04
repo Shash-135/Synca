@@ -1,2 +1,2 @@
-# synca
+# Synca
 College Mini Project
