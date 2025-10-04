@@ -62,8 +62,12 @@ WSGI_APPLICATION = 'synca_project.wsgi.application'
 # TODO: Replace this with your MySQL settings, preferably loaded from .env
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'synca_db',                 # The name of your database from Step 2
+        'USER': 'synca_user',               # The username you created in Step 3
+        'PASSWORD': 'synca123',  # The password you chose in Step 3
+        'HOST': '127.0.0.1',                # Or 'localhost'
+        'PORT': '3306',                     # Default MySQL port
     }
 }
 
