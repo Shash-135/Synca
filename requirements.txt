@@ -1,0 +1,17 @@
+# --------------------------------------------------
+#  Requirements for the Synca Project
+# --------------------------------------------------
+
+# The core web framework for our project
+Django~=5.0
+
+# The database connector for connecting Django to MySQL
+# Note: On some systems, this may require C++ build tools.
+# If it fails, a common alternative is 'mysql-connector-python'.
+mysqlclient~=2.2
+
+# For handling image uploads (e.g., PG photos, user profiles)
+Pillow~=10.1
+
+# For loading environment variables from a .env file (for SECRET_KEY, DB passwords, etc.)
+python-dotenv~=1.0

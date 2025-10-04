@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Synca - Syncing up with the perfect place{% endblock %}
+
+{% block content %}
+    <div class="p-5 mb-4 bg-light rounded-3 text-center">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">Welcome to Synca</h1>
+            <img src="{% static 'images/logo.png' %}" alt="Synca Logo" class="my-4" style="max-width: 150px;">
+            <p class="fs-4">Syncing up with the perfect place.</p>
+            <p>Start your search for the best PG in town today!</p>
+            </div>
+    </div>
+
+    <h2 class="text-center">Featured Properties</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sample PG Listing</h5>
+                    <p class="card-text">This is where the PG details will appear.</p>
+                    <a href="#" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
