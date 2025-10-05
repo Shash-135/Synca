@@ -1,28 +1,90 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}Synca - Syncing up with the perfect place{% endblock %}
 
 {% block content %}
-    <div class="p-5 mb-4 rounded-3 text-center" style="background-color:#d0ccc6;">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Welcome to Synca</h1>
-            <img src="{% static 'images/logo.png' %}" alt="Synca Logo" class="my-4" style="max-width: 150px;">
-            <p class="fs-4">Syncing up with the perfect place.</p>
-            <p>Start your search for the best PG in town today!</p>
-            </div>
+<div class="container py-5">
+  <div class="row justify-content-center align-items-center mb-5">
+    <div class="col-lg-8 text-center">
+      <h1 class="display-4 fw-bold text-gold">Welcome to <span class="text-dark-blue">Synca</span></h1>
+      <p class="fs-4 text-medium-blue">Syncing up with the perfect place.</p>
+      <p class="lead text-dark-blue">Find and book the best PG accommodations for students and owners.<br>
+        <span class="text-gold">Start your search for the best PG in town today!</span>
+      </p>
+      <a href="{% url 'register' %}" class="btn btn-lg btn-primary mt-3">Get Started</a>
     </div>
+  </div>
 
-    <h2 class="text-center">Featured Properties</h2>
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Sample PG Listing</h5>
-                    <p class="card-text">This is where the PG details will appear.</p>
-                    <a href="#" class="btn btn-primary">View Details</a>
-                </div>
-            </div>
+  <h2 class="text-center text-gold mb-4">Featured Properties</h2>
+  <div class="row justify-content-center">
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark-blue">Sample PG Listing</h5>
+          <p class="card-text text-medium-blue">This is where the PG details will appear.</p>
+          <a href="#" class="btn btn-primary">View Details</a>
         </div>
+      </div>
     </div>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark-blue">Luxury PG Stay</h5>
+          <p class="card-text text-medium-blue">Spacious rooms, 24/7 security, and easy access to public transport.</p>
+          <a href="#" class="btn btn-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark-blue">Budget PG</h5>
+          <p class="card-text text-medium-blue">Affordable and comfortable stay for students, with all basic facilities.</p>
+          <a href="#" class="btn btn-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-5 justify-content-center" id="about">
+    <div class="col-lg-8">
+      <div class="card bg-light shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-dark-blue mb-3">About Us</h3>
+          <p class="text-medium-blue">
+            Synca is dedicated to connecting students and PG owners for a seamless accommodation experience. 
+            Our platform offers verified listings, secure bookings, and easy management for both students and owners.
+            We strive to make finding and managing PG stays simple, safe, and efficient.
+          </p>
+          <ul class="list-group list-group-flush fs-5">
+            <li class="list-group-item"><span class="text-gold">&#9733;</span> Verified PG Listings</li>
+            <li class="list-group-item"><span class="text-gold">&#9733;</span> Easy Booking Process</li>
+            <li class="list-group-item"><span class="text-gold">&#9733;</span> Owner & Student Dashboards</li>
+            <li class="list-group-item"><span class="text-gold">&#9733;</span> Secure Payments</li>
+            <li class="list-group-item"><span class="text-gold">&#9733;</span> 24/7 Support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-5 justify-content-center" id="contact">
+    <div class="col-lg-8">
+      <div class="card bg-light shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-dark-blue mb-3">Contact Us</h3>
+          <p class="text-medium-blue">
+            Have questions or need support? Reach out to us!
+          </p>
+          <ul class="list-unstyled fs-5">
+            <li><strong>Email:</strong> <a href="mailto:support@synca.com" class="text-light-blue">support@synca.com</a></li>
+            <li><strong>Phone:</strong> <span class="text-dark-blue">+91-9876543210</span></li>
+            <li><strong>Address:</strong> <span class="text-dark-blue">Synca HQ, Main Street, Your City</span></li>
+          </ul>
+          <p class="mt-3 text-medium-blue">We aim to respond within 24 hours.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
