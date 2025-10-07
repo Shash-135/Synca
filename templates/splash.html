@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synca - Loading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .splash-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #030213 0%, #1a1a2e 50%, #2a2a3e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-container.fade-out {
+            opacity: 0;
+        }
+
+        /* Animated background elements */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .bg-circle-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.15);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-circle-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.15);
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+        }
+
+        /* Main content */
+        .splash-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        /* Logo container */
+        .logo-container {
+            position: relative;
+            margin-bottom: 2rem;
+            animation: scaleIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .logo-circle {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #9333ea 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: ripple 2s ease-out infinite;
+        }
+
+        @keyframes ripple {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+            }
+        }
+
+        .logo-icons {
+            display: flex;
+            gap: 4px;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        /* Brand name */
+        .brand-name {
+            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #f9a8d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .tagline {
+            color: #d1d5db;
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.6s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading indicator */
+        .loading-section {
+            animation: fadeInUp 0.6s ease-out 0.9s backwards;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #60a5fa;
+            animation: bounce 1.2s ease-in-out infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 250px;
+            height: 4px;
+            background: #374151;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #9333ea 100%);
+            border-radius: 10px;
+            animation: progress 2.5s ease-in-out forwards;
+        }
+
+        @keyframes progress {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        /* Footer text */
+        .footer-text {
+            position: absolute;
+            bottom: 2rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+            animation: fadeInUp 0.6s ease-out 1.2s backwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .brand-name {
+                font-size: 3rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .logo-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-icons {
+                font-size: 2rem;
+            }
+
+            .bg-circle-1,
+            .bg-circle-2 {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container" id="splashContainer">
+        <!-- Animated background circles -->
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+
+        <!-- Main content -->
+        <div class="splash-content">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-circle">
+                    <div class="logo-icons">
+                        <i class="bi bi-house-door-fill"></i>
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand name and tagline -->
+            <h1 class="brand-name">Synca</h1>
+            <p class="tagline">Syncing up with your perfect Place</p>
+
+            <!-- Loading indicator -->
+            <div class="loading-section">
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer text -->
+        <div class="footer-text">Your Home Away From Home</div>
+    </div>
+
+    <script>
+        // Auto-dismiss splash screen after animation completes
+        setTimeout(function() {
+            const splashContainer = document.getElementById('splashContainer');
+            splashContainer.classList.add('fade-out');
+            
+            // Redirect to home page after fade out
+            setTimeout(function() {
+                window.location.href = '{% url "home" %}';  // Update with your Django URL name
+            }, 500);
+        }, 3000);
+    </script>
+</body>
+</html>

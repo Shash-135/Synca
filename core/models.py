@@ -1,12 +1,14 @@
-# core/models.py
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class User(AbstractUser):
     USER_TYPE_CHOICES = (('student', 'Student'), ('owner', 'Owner'))
+    OCCUPATION_CHOICES = (('student', 'Student'), ('working', 'Working Professional'))
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='student')
+    age = models.PositiveIntegerField(null=True, blank=True)
+    occupation = models.CharField(max_length=20, choices=OCCUPATION_CHOICES, null=True, blank=True)
+    contact_number = models.CharField(max_length=15, null=True, blank=True)
 
 class PG(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'owner'}, related_name='pgs')

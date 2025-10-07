@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Dashboard - Synca{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Owner Dashboard</h1>
+            <p class="text-muted mb-0">Manage your properties and bookings</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+            <i class="bi bi-plus-circle me-2"></i> Add Property
+        </button>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Total Properties</span>
+                    <i class="bi bi-building text-primary fs-4"></i>
+                </div>
+                <p class="stat-value">{{ stats.total_pgs }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Total Beds</span>
+                    <i class="bi bi-door-open text-primary fs-4"></i>
+                </div>
+                <p class="stat-value">{{ stats.total_beds }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Occupied</span>
+                    <i class="bi bi-check-circle text-success fs-4"></i>
+                </div>
+                <p class="stat-value">{{ stats.occupied_beds }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Occupancy Rate</span>
+                    <i class="bi bi-people text-primary fs-4"></i>
+                </div>
+                <p class="stat-value">{{ stats.occupancy_rate }}%</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#properties" type="button">
+                Properties
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#beds" type="button">
+                Bed Management
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bookings" type="button">
+                Bookings
+            </button>
+        </li>
+    </ul>
+    
+    <div class="tab-content">
+        <!-- Properties Tab -->
+        <div class="tab-pane fade show active" id="properties">
+            {% if pgs %}
+            <div class="row g-4">
+                {% for pg in pgs %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card">
+                        <div class="overflow-hidden" style="height: 200px;">
+                            {% if pg.image %}
+                            <img src="{{ pg.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
+                                 class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ pg.pg_name }}</h5>
+                            <p class="text-muted small mb-3">{{ pg.area }}</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-sm mb-1">
+                                    <span class="text-muted">Rooms</span>
+                                    <strong>{{ pg.rooms.count }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm mb-1">
+                                    <span class="text-muted">Total Beds</span>
+                                    <strong>{{ pg.total_beds }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm">
+                                    <span class="text-muted">Occupied</span>
+                                    <strong>{{ pg.occupied_beds }}</strong>
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'pg_detail' pg.id %}" class="btn btn-outline-primary w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-building display-1 text-muted"></i>
+                <h3 class="mt-3">No properties yet</h3>
+                <p class="text-muted mb-4">Start by adding your first property</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+                    <i class="bi bi-plus-circle me-2"></i> Add Your First Property
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Bed Management Tab -->
+        <div class="tab-pane fade" id="beds">
+            {% for pg in pgs %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">{{ pg.pg_name }}</h5>
+                    
+                    {% for room in pg.rooms.all %}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <strong>Room {{ room.room_number }}</strong>
+                                <span class="badge bg-light text-dark ms-2">{{ room.room_type }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            {% for bed in room.beds.all %}
+                            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="card text-center p-3">
+                                    <i class="bi {% if bed.is_available %}bi-door-open text-success{% else %}bi-door-closed text-muted{% endif %} fs-3 mb-2"></i>
+                                    <small class="mb-2">Bed {{ bed.bed_identifier }}</small>
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input class="form-check-input bed-toggle" 
+                                               type="checkbox" 
+                                               data-bed-id="{{ bed.id }}"
+                                               {% if bed.is_available %}checked{% endif %}>
+                                    </div>
+                                    <small class="text-muted mt-1">
+                                        {% if bed.is_available %}Available{% else %}Occupied{% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if not forloop.last %}
+                        <hr class="my-4">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Bookings Tab -->
+        <div class="tab-pane fade" id="bookings">
+            {% if bookings %}
+            <div class="row g-3">
+                {% for booking in bookings %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-2">{{ booking.bed.room.pg.pg_name }}</h5>
+                                    <div class="text-muted small">
+                                        <p class="mb-1">Room {{ booking.bed.room.room_number }} - Bed {{ booking.bed.bed_identifier }}</p>
+                                        <p class="mb-1">Booking ID: {{ booking.id }}</p>
+                                        <p class="mb-0">Date: {{ booking.booking_date|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <span class="badge {% if booking.booking_type == 'Online' %}bg-primary{% else %}bg-secondary{% endif %} mb-2">
+                                        {{ booking.booking_type }}
+                                    </span>
+                                    <p class="text-muted small mb-0">Status: {{ booking.booking_status }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-people display-1 text-muted"></i>
+                <h3 class="mt-3">No bookings yet</h3>
+                <p class="text-muted">Bookings will appear here once students start booking</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Property Modal -->
+<div class="modal fade" id="addPropertyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Property</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center text-muted">
+                    This feature will be available soon!<br>
+                    For now, use the Django admin panel to add properties.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Bed availability toggle
+    document.querySelectorAll('.bed-toggle').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            const bedId = this.getAttribute('data-bed-id');
+            const isAvailable = this.checked;
+            
+            // AJAX call to update bed availability
+            fetch(`/api/beds/${bedId}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ is_available: isAvailable })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    const card = toggle.closest('.card');
+                    const icon = card.querySelector('i');
+                    const statusText = card.querySelector('.text-muted');
+                    
+                    if (isAvailable) {
+                        icon.className = 'bi bi-door-open text-success fs-3 mb-2';
+                        statusText.textContent = 'Available';
+                    } else {
+                        icon.className = 'bi bi-door-closed text-muted fs-3 mb-2';
+                        statusText.textContent = 'Occupied';
+                    }
+                    
+                    // Show success message
+                    alert('Bed availability updated successfully!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update bed availability');
+                // Revert toggle
+                toggle.checked = !isAvailable;
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

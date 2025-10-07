@@ -1,63 +1,58 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="Synca Logo"
-        width="32"
-        height="32"
-        class="me-2"
-      />
-      Synca
-    </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#about">About Us</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#contact">Contact Us</a>
-        </li>
-        {% if user.is_authenticated %} 
-        {% if user.user_type == 'student' %}
-        <li class="nav-item">
-          <a class="nav-link" href="#">My Bookings</a>
-        </li>
-        {% endif %} {% if user.user_type == 'owner' %}
-        <li class="nav-item">
-          <a class="nav-link" href="#">Owner Dashboard</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link" href="#">Profile</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-        </li>
-        {% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'login' %}">Login</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'register' %}">Register</a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
+<!-- Navigation -->
+    {% if not hide_nav %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="bi bi-building me-2 text-primary"></i>
+                <div>
+                    <div class="fw-bold">Synca</div>
+                    <div style="font-size: 0.625rem; color: var(--text-muted);">Syncing up with the perfect place</div>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">
+                                <i class="bi bi-house me-1"></i> Home
+                            </a>
+                        </li>
+                        
+                        {% if user.user_type == 'owner' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'owner_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <li class="nav-item mx-2">
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-person me-1"></i> {{ user.get_full_name|default:user.username }}
+                            </span>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="btn btn-outline-dark btn-sm" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-outline-dark btn-sm me-2" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}

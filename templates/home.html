@@ -1,90 +1,174 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Synca - Syncing up with the perfect place{% endblock %}
+
+{% block title %}Home - Synca{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center align-items-center mb-5">
-    <div class="col-lg-8 text-center">
-      <h1 class="display-4 fw-bold text-gold">Welcome to <span class="text-dark-blue">Synca</span></h1>
-      <p class="fs-4 text-medium-blue">Syncing up with the perfect place.</p>
-      <p class="lead text-dark-blue">Find and book the best PG accommodations for students and owners.<br>
-        <span class="text-gold">Start your search for the best PG in town today!</span>
-      </p>
-      <a href="{% url 'register' %}" class="btn btn-lg btn-primary mt-3">Get Started</a>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">Find Your Perfect PG & Hostel</h1>
+            <p class="lead text-muted">
+                Discover comfortable and affordable accommodations for students and young professionals
+            </p>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="card search-card border-0 p-4 mx-auto" style="max-width: 1000px;">
+            <form method="GET" action="{% url 'home' %}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Area</label>
+                        <select name="area" class="form-select">
+                            <option value="">All Areas</option>
+                            {% for area in areas %}
+                            <option value="{{ area }}" {% if request.GET.area == area %}selected{% endif %}>
+                                {{ area }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Room Type</label>
+                        <select name="room_type" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="Single" {% if request.GET.room_type == 'Single' %}selected{% endif %}>Single</option>
+                            <option value="Double" {% if request.GET.room_type == 'Double' %}selected{% endif %}>Double</option>
+                            <option value="Triple" {% if request.GET.room_type == 'Triple' %}selected{% endif %}>Triple</option>
+                            <option value="Quad" {% if request.GET.room_type == 'Quad' %}selected{% endif %}>Quad</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Max Price</label>
+                        <input type="number" name="max_price" class="form-control" 
+                               placeholder="Max price" value="{{ request.GET.max_price }}">
+                    </div>
+                    
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
+</section>
 
-  <h2 class="text-center text-gold mb-4">Featured Properties</h2>
-  <div class="row justify-content-center">
-    <div class="col-md-4 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title text-dark-blue">Sample PG Listing</h5>
-          <p class="card-text text-medium-blue">This is where the PG details will appear.</p>
-          <a href="#" class="btn btn-primary">View Details</a>
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-geo-alt fs-1 text-primary"></i>
+                </div>
+                <h3 class="h5">Prime Locations</h3>
+                <p class="text-muted">Find PGs in the best localities near your workplace or college</p>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-house-check fs-1 text-primary"></i>
+                </div>
+                <h3 class="h5">Verified Properties</h3>
+                <p class="text-muted">All properties are verified with accurate photos and amenities</p>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-currency-rupee fs-1 text-primary"></i>
+                </div>
+                <h3 class="h5">Best Prices</h3>
+                <p class="text-muted">Competitive pricing with transparent booking and no hidden charges</p>
+            </div>
         </div>
-      </div>
     </div>
-    <div class="col-md-4 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title text-dark-blue">Luxury PG Stay</h5>
-          <p class="card-text text-medium-blue">Spacious rooms, 24/7 security, and easy access to public transport.</p>
-          <a href="#" class="btn btn-primary">View Details</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title text-dark-blue">Budget PG</h5>
-          <p class="card-text text-medium-blue">Affordable and comfortable stay for students, with all basic facilities.</p>
-          <a href="#" class="btn btn-primary">View Details</a>
-        </div>
-      </div>
-    </div>
-  </div>
+</section>
 
-  <div class="row mt-5 justify-content-center" id="about">
-    <div class="col-lg-8">
-      <div class="card bg-light shadow-sm">
-        <div class="card-body">
-          <h3 class="card-title text-dark-blue mb-3">About Us</h3>
-          <p class="text-medium-blue">
-            Synca is dedicated to connecting students and PG owners for a seamless accommodation experience. 
-            Our platform offers verified listings, secure bookings, and easy management for both students and owners.
-            We strive to make finding and managing PG stays simple, safe, and efficient.
-          </p>
-          <ul class="list-group list-group-flush fs-5">
-            <li class="list-group-item"><span class="text-gold">&#9733;</span> Verified PG Listings</li>
-            <li class="list-group-item"><span class="text-gold">&#9733;</span> Easy Booking Process</li>
-            <li class="list-group-item"><span class="text-gold">&#9733;</span> Owner & Student Dashboards</li>
-            <li class="list-group-item"><span class="text-gold">&#9733;</span> Secure Payments</li>
-            <li class="list-group-item"><span class="text-gold">&#9733;</span> 24/7 Support</li>
-          </ul>
+<!-- Properties Listing -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                {% if request.GET.area or request.GET.room_type or request.GET.max_price %}
+                    Filtered Results
+                {% else %}
+                    Featured Properties
+                {% endif %}
+            </h2>
+            
+            {% if request.GET.area or request.GET.room_type or request.GET.max_price %}
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                Clear Filters
+            </a>
+            {% endif %}
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-5 justify-content-center" id="contact">
-    <div class="col-lg-8">
-      <div class="card bg-light shadow-sm">
-        <div class="card-body">
-          <h3 class="card-title text-dark-blue mb-3">Contact Us</h3>
-          <p class="text-medium-blue">
-            Have questions or need support? Reach out to us!
-          </p>
-          <ul class="list-unstyled fs-5">
-            <li><strong>Email:</strong> <a href="mailto:support@synca.com" class="text-light-blue">support@synca.com</a></li>
-            <li><strong>Phone:</strong> <span class="text-dark-blue">+91-9876543210</span></li>
-            <li><strong>Address:</strong> <span class="text-dark-blue">Synca HQ, Main Street, Your City</span></li>
-          </ul>
-          <p class="mt-3 text-medium-blue">We aim to respond within 24 hours.</p>
+        
+        {% if pgs %}
+        <div class="row g-4">
+            {% for pg in pgs %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card pg-card border-0 shadow-sm h-100">
+                    <div class="overflow-hidden">
+                        {% if pg.image %}
+                        <img src="{{ pg.image.url }}" class="card-img-top" alt="{{ pg.pg_name }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
+                             class="card-img-top" alt="{{ pg.pg_name }}">
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="card-title mb-1">{{ pg.pg_name }}</h5>
+                                <p class="text-muted small mb-0">
+                                    <i class="bi bi-geo-alt"></i> {{ pg.area }}
+                                </p>
+                            </div>
+                            <div class="rating-badge">
+                                <i class="bi bi-star-fill"></i> {{ pg.average_rating|default:"4.5" }}
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted small">{{ pg.address|truncatewords:10 }}</p>
+                        
+                        <div class="mb-3">
+                            {% for amenity in pg.amenities_list|slice:":3" %}
+                            <span class="badge bg-secondary me-1">{{ amenity }}</span>
+                            {% endfor %}
+                            {% if pg.amenities_list|length > 3 %}
+                            <span class="badge bg-light text-dark">+{{ pg.amenities_list|length|add:"-3" }} more</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="fs-5">
+                                    <i class="bi bi-currency-rupee"></i>{{ pg.min_price|default:"---" }}
+                                </strong>
+                                <small class="text-muted">/month</small>
+                            </div>
+                            <a href="{% url 'pg_detail' pg.id %}" class="btn btn-primary btn-sm">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-      </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-funnel display-1 text-muted"></i>
+            <h3 class="mt-3">No properties found</h3>
+            <p class="text-muted mb-3">Try adjusting your filters to see more results</p>
+            <a href="{% url 'home' %}" class="btn btn-outline-primary">Clear Filters</a>
+        </div>
+        {% endif %}
     </div>
-  </div>
-</div>
+</section>
 {% endblock %}
