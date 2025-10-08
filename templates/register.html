@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Register - Synca{% endblock %}
 
 {% block content %}
@@ -11,7 +13,7 @@
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
-                                <i class="bi bi-building text-primary" style="font-size: 2rem;"></i>
+                               <img src="{% static 'images/logo.png' %}" alt="Synca Logo" style="height: 40px;">
                                 <div class="text-start">
                                     <h2 class="mb-0">Synca</h2>
                                     <p class="small text-muted mb-0">Syncing up with the perfect place</p>
@@ -45,6 +47,16 @@
                                 <label for="age" class="form-label">Age</label>
                                 <input type="number" class="form-control" id="age" name="age" min="0"
                                        required placeholder="Your Age" value="{{ form.age.value|default_if_none:'' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Select gender</option>
+                                    <option value="male" {% if form.gender.value == "male" %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if form.gender.value == "female" %}selected{% endif %}>Female</option>
+                                    <option value="non_binary" {% if form.gender.value == "non_binary" %}selected{% endif %}>Non-binary</option>
+                                    <option value="prefer_not_to_say" {% if form.gender.value == "prefer_not_to_say" %}selected{% endif %}>Prefer not to say</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="contact_number" class="form-label">Contact Number</label>

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pg.pg_name }} - Synca{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-4">
+        <i class="bi bi-chevron-left me-1"></i> Back to Search
+    </a>
+    
+    <!-- PG Header -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="rounded overflow-hidden" style="height: 400px;">
+                {% if pg.image %}
+                <img src="{{ pg.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
+                     class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h1 class="mb-2">{{ pg.pg_name }}</h1>
+                    <p class="text-muted mb-1">
+                        <i class="bi bi-geo-alt"></i> {{ pg.area }}
+                    </p>
+                    <p class="text-muted">{{ pg.address }}</p>
+                </div>
+                <div class="rating-badge fs-6">
+                    <i class="bi bi-star-fill"></i> {{ average_rating|default_if_none:"4.5" }}
+                    <small class="text-muted">({{ reviews|length }})</small>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div>
+                <h3 class="h5 mb-3">Amenities</h3>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for amenity in amenities_list %}
+                    <span class="badge bg-secondary px-3 py-2">{{ amenity }}</span>
+                    {% empty %}
+                    <span class="text-muted">No amenities listed.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rooms & Beds Section -->
+    <div class="mb-5">
+        <h2 class="mb-4">Available Rooms & Beds</h2>
+        
+        {% if rooms %}
+        <div class="row g-4">
+            {% for room in rooms %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <h3 class="h4 mb-0">Room {{ room.room_number }}</h3>
+                                    <span class="badge bg-light text-dark border">{{ room.get_room_type_display }}</span>
+                                </div>
+                                <div class="text-muted">
+                                    <i class="bi bi-people me-1"></i> {{ room.total_beds }} beds
+                                    <span class="ms-3">
+                                        <i class="bi bi-check-circle me-1"></i> 
+                                        {{ room.available_beds }} available
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <div class="d-flex align-items-center justify-content-md-end">
+                                    <i class="bi bi-currency-rupee fs-4"></i>
+                                    <span class="fs-2 fw-semibold">{{ room.price_per_bed|floatformat:0 }}</span>
+                                    <span class="text-muted ms-2">/month</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <p class="small text-muted mb-3">Select a bed:</p>
+                        <div class="row g-3">
+                            {% for bed in room.beds.all %}
+                            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                {% if bed.is_available %}
+                                <a href="{% url 'booking' bed.id %}" 
+                                   class="text-decoration-none bed-selector bed-available">
+                                    <i class="bi bi-door-open fs-3 text-success"></i>
+                                    <div class="mt-2 small">Bed {{ bed.bed_identifier }}</div>
+                                    <i class="bi bi-check-circle text-success mt-1"></i>
+                                </a>
+                                {% else %}
+                                <div class="bed-selector bed-occupied">
+                                    <i class="bi bi-door-closed fs-3 text-muted"></i>
+                                    <div class="mt-2 small">Bed {{ bed.bed_identifier }}</div>
+                                    <i class="bi bi-x-circle text-danger mt-1"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No rooms available at the moment.
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Reviews Section -->
+    {% if reviews %}
+    <div>
+        <h2 class="mb-4">Reviews</h2>
+        <div class="row g-4">
+            {% for review in reviews %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                            <div class="rating-badge">
+                                <i class="bi bi-star-fill"></i> {{ review.rating }}
+                            </div>
+                        </div>
+                        <p class="text-muted mb-2">{{ review.comment }}</p>
+                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+{% if not user.is_authenticated %}
+<script>
+    // If user is not logged in and clicks a bed, redirect to login
+    document.querySelectorAll('.bed-available').forEach(function(element) {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Please login to book a bed');
+            window.location.href = "{% url 'login' %}?next={{ request.path }}";
+        });
+    });
+</script>
+{% elif user.user_type != 'student' %}
+<script>
+    // If user is not a student and clicks a bed, show alert
+    document.querySelectorAll('.bed-available').forEach(function(element) {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Only students can book beds online');
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
+{% endblock %}
