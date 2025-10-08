@@ -33,10 +33,9 @@
                         <label class="form-label">Room Type</label>
                         <select name="room_type" class="form-select">
                             <option value="">All Types</option>
-                            <option value="Single" {% if request.GET.room_type == 'Single' %}selected{% endif %}>Single</option>
-                            <option value="Double" {% if request.GET.room_type == 'Double' %}selected{% endif %}>Double</option>
-                            <option value="Triple" {% if request.GET.room_type == 'Triple' %}selected{% endif %}>Triple</option>
-                            <option value="Quad" {% if request.GET.room_type == 'Quad' %}selected{% endif %}>Quad</option>
+                            {% for value, label in room_type_choices %}
+                            <option value="{{ value }}" {% if selected_room_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     
@@ -44,6 +43,16 @@
                         <label class="form-label">Max Price</label>
                         <input type="number" name="max_price" class="form-control" 
                                placeholder="Max price" value="{{ request.GET.max_price }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">PG Type</label>
+                        <select name="pg_type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for value, label in pg_type_choices %}
+                            <option value="{{ value }}" {% if selected_pg_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     
                     <div class="col-md-3 d-flex align-items-end">
@@ -93,14 +102,14 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>
-                {% if request.GET.area or request.GET.room_type or request.GET.max_price %}
+                {% if request.GET.area or request.GET.room_type or request.GET.max_price or request.GET.pg_type %}
                     Filtered Results
                 {% else %}
                     Featured Properties
                 {% endif %}
             </h2>
             
-            {% if request.GET.area or request.GET.room_type or request.GET.max_price %}
+            {% if request.GET.area or request.GET.room_type or request.GET.max_price or request.GET.pg_type %}
             <a href="{% url 'home' %}" class="btn btn-outline-secondary">
                 Clear Filters
             </a>
@@ -129,8 +138,11 @@
                                     <i class="bi bi-geo-alt"></i> {{ pg.area }}
                                 </p>
                             </div>
-                            <div class="rating-badge">
-                                <i class="bi bi-star-fill"></i> {{ pg.average_rating|default:"4.5" }}
+                            <div class="text-end">
+                                <span class="badge bg-info text-dark">{{ pg.get_pg_type_display }}</span>
+                                <div class="rating-badge mt-2">
+                                    <i class="bi bi-star-fill"></i> {{ pg.average_rating|default:"4.5" }}
+                                </div>
                             </div>
                         </div>
                         

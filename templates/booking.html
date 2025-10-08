@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Booking - Synca{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Confirm Your Booking</h1>
+    
+    <div class="row">
+        <!-- Booking Details -->
+        <div class="col-lg-8">
+            <!-- Property Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Property Details</h3>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-house fs-4 text-primary"></i>
+                                <div>
+                                    <strong class="d-block">{{ bed.room.pg.pg_name }}</strong>
+                                    <small class="text-muted">{{ bed.room.pg.address }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-geo-alt fs-4 text-primary"></i>
+                                <div>{{ bed.room.pg.area }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Room & Bed Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Room & Bed Details</h3>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <span class="text-muted">Room Number</span>
+                            <div><strong>{{ bed.room.room_number }}</strong></div>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted">Room Type</span>
+                            <div><strong>{{ bed.room.room_type }}</strong></div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <span class="text-muted">Bed Identifier</span>
+                            <div><strong>Bed {{ bed.bed_identifier }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Guest Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Guest Details</h3>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <span class="text-muted">Name</span>
+                            <div><strong>{{ user.get_full_name|default:user.username }}</strong></div>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted">Email</span>
+                            <div><strong>{{ user.email }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Price Summary -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 100px;">
+                <div class="card-body">
+                    <h3 class="h5 mb-4">Price Summary</h3>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Monthly Rent</span>
+                        <div>
+                            <i class="bi bi-currency-rupee"></i>
+                            <strong>{{ bed.room.price_per_bed|floatformat:0 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Security Deposit</span>
+                        <div>
+                            <i class="bi bi-currency-rupee"></i>
+                            <strong>{{ bed.room.price_per_bed|floatformat:0 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <strong>Total Amount</strong>
+                        <div class="fs-4">
+                            <i class="bi bi-currency-rupee"></i>
+                            <strong>{{ total_amount|floatformat:0 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" id="bookingForm">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="confirmBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="spinner"></span>
+                            <span id="btnText">Confirm & Pay</span>
+                        </button>
+                    </form>
+                    
+                    <p class="text-center text-muted small mt-3 mb-0">
+                        By confirming, you agree to our terms and conditions
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const confirmBtn = document.getElementById('confirmBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+        
+        confirmBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        btnText.textContent = ' Processing...';
+    });
+</script>
+{% endblock %}
+{% endblock %}

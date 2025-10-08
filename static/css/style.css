@@ -68,6 +68,7 @@ body {
 }
 
 .bed-selector {
+  float: inline-end;
   border: 2px solid var(--border-color);
   border-radius: 0.5rem;
   padding: 1rem;
