@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Offline Booking - Synca{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Add Offline Booking</h1>
+            <p class="text-muted mb-0">Record a tenant who booked outside the platform</p>
+        </div>
+        <a href="{% url 'owner_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body p-4">
+            {% if has_available_beds %}
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label class="form-label">Available Bed</label>
+                        {{ form.bed }}
+                        {% if form.bed.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.bed.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Age</label>
+                        {{ form.age }}
+                        {% if form.age.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.age.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Gender</label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.gender.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Occupation</label>
+                        {{ form.occupation }}
+                        {% if form.occupation.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.occupation.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Number</label>
+                        {{ form.contact_number }}
+                        {% if form.contact_number.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.contact_number.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i> Save Offline Booking
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-door-closed display-4 text-muted"></i>
+                <h3 class="mt-3">No available beds</h3>
+                <p class="text-muted">All beds across your properties are currently occupied. Free up a bed to add an offline booking.</p>
+                <a href="{% url 'owner_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

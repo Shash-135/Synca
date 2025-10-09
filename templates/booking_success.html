@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Confirmed - Synca{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+        <div class="col-md-7 col-lg-6">
+            <div class="card border-0 shadow">
+                <div class="card-body text-center p-5">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 100px; height: 100px;">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h2 class="mb-3">Booking Confirmed!</h2>
+                    <p class="text-muted mb-4">
+                        Thank you, {{ user.get_full_name|default:user.username }}. Your booking for
+                        <strong>{{ booking.bed.room.pg.pg_name }}</strong> is confirmed.
+                    </p>
+
+                    <div class="bg-light rounded p-4 mb-4 text-start">
+                        <h3 class="h6 text-uppercase text-muted mb-3">Booking Summary</h3>
+                        <dl class="row mb-0 small">
+                            <dt class="col-5 text-muted">Booking ID</dt>
+                            <dd class="col-7">{{ booking.id }}</dd>
+
+                            <dt class="col-5 text-muted">Property</dt>
+                            <dd class="col-7">{{ booking.bed.room.pg.pg_name }}</dd>
+
+                            <dt class="col-5 text-muted">Address</dt>
+                            <dd class="col-7">{{ booking.bed.room.pg.address }}</dd>
+
+                            <dt class="col-5 text-muted">Room</dt>
+                            <dd class="col-7">{{ booking.bed.room.room_number }} ({{ booking.bed.room.get_room_type_display }})</dd>
+
+                            <dt class="col-5 text-muted">Bed</dt>
+                            <dd class="col-7">{{ booking.bed.bed_identifier }}</dd>
+
+                            <dt class="col-5 text-muted">Monthly Rent</dt>
+                            <dd class="col-7">
+                                <i class="bi bi-currency-rupee"></i>{{ monthly_rent|floatformat:0 }}
+                            </dd>
+
+                            {% if deposit_applicable %}
+                            <dt class="col-5 text-muted">Security Deposit</dt>
+                            <dd class="col-7">
+                                <i class="bi bi-currency-rupee"></i>{{ security_deposit|floatformat:0 }}
+                            </dd>
+                            {% endif %}
+
+                            <dt class="col-5 text-muted">Total Amount</dt>
+                            <dd class="col-7">
+                                <strong><i class="bi bi-currency-rupee"></i>{{ total_amount|floatformat:0 }}</strong>
+                            </dd>
+
+                            <dt class="col-5 text-muted">Booking Date</dt>
+                            <dd class="col-7">{{ booking.booking_date|date:"M d, Y" }}</dd>
+                        </dl>
+                    </div>
+
+                    {% if roommates %}
+                    <div class="bg-white border rounded p-4 mb-4 text-start">
+                        <h3 class="h6 text-uppercase text-muted mb-3">Your Roommates</h3>
+                        <div class="list-group list-group-flush small">
+                            {% for roommate in roommates %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        {% if roommate.user %}
+                                        <strong>{{ roommate.user.get_full_name|default:roommate.user.username }}</strong>
+                                        <div class="text-muted">
+                                            Age: {{ roommate.user.age|default:"—" }} · Occupation: {{ roommate.user.get_occupation_display|default:roommate.user.occupation|default:"—" }}
+                                        </div>
+                                        {% else %}
+                                        <strong>Unassigned</strong>
+                                        <div class="text-muted">Occupant not yet assigned</div>
+                                        {% endif %}
+                                    </div>
+                                    <span class="badge bg-secondary">Bed {{ roommate.bed.bed_identifier }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'home' %}" class="btn btn-primary">
+                            Back to Home
+                        </a>
+                        <a href="{% url 'pg_detail' booking.bed.room.pg.id %}" class="btn btn-outline-secondary">
+                            View Property
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-muted small mt-4">
+                Need help? Contact our support team at
+                <a href="mailto:support@synca.com" class="text-decoration-none">support@synca.com</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

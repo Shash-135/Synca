@@ -96,17 +96,45 @@
                                     <i class="bi bi-door-open fs-3 text-success"></i>
                                     <div class="mt-2 small">Bed {{ bed.bed_identifier }}</div>
                                     <i class="bi bi-check-circle text-success mt-1"></i>
+                                    {% if bed.current_booking and not bed.current_occupant %}
+                                    <div class="small text-muted mt-2">Pending assignment</div>
+                                    {% endif %}
                                 </a>
                                 {% else %}
                                 <div class="bed-selector bed-occupied">
                                     <i class="bi bi-door-closed fs-3 text-muted"></i>
                                     <div class="mt-2 small">Bed {{ bed.bed_identifier }}</div>
                                     <i class="bi bi-x-circle text-danger mt-1"></i>
+                                    {% if bed.current_occupant %}
+                                    <div class="small text-muted mt-2">
+                                        <strong>{{ bed.current_occupant.get_full_name|default:bed.current_occupant.username }}</strong><br>
+                                        Age: {{ bed.current_occupant.age|default:"—" }} · {{ bed.current_occupant.get_occupation_display|default:bed.current_occupant.occupation|default:"—" }}
+                                    </div>
+                                    {% elif bed.current_booking %}
+                                    <div class="small text-muted mt-2">Occupant assigned offline</div>
+                                    {% endif %}
                                 </div>
                                 {% endif %}
                             </div>
                             {% endfor %}
                         </div>
+
+                        {% if room.roommate_beds %}
+                        <div class="mt-4">
+                            <h4 class="h6 text-muted text-uppercase mb-3">Current Roommates</h4>
+                            <ul class="list-unstyled small mb-0">
+                                {% for bed in room.roommate_beds %}
+                                <li class="mb-2">
+                                    <strong>{{ bed.current_occupant.get_full_name|default:bed.current_occupant.username }}</strong>
+                                    <span class="text-muted">(Bed {{ bed.bed_identifier }})</span><br>
+                                    <span class="text-muted">Age: {{ bed.current_occupant.age|default:"—" }} · {{ bed.current_occupant.get_occupation_display|default:bed.current_occupant.occupation|default:"—" }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                        <div class="mt-4 text-muted small">No roommates yet.</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Synca{% endblock %}
+
+{% block content %}
+<section class="bg-light py-5">
+    <div class="container">
+        <h1 class="mb-2">My Profile</h1>
+        <p class="text-muted mb-0">Manage your personal information, academics, and safety contacts</p>
+    </div>
+</section>
+
+<section class="py-4">
+    <div class="container" style="max-width: 900px;">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 96px; height: 96px;">
+                            <span class="fs-2 fw-semibold text-primary">{{ request.user.first_name|slice:":1"|default:"S" }}{{ request.user.last_name|slice:":1" }}</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h2 class="h4 mb-1">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                        <p class="text-muted mb-2">{{ request.user.email }}</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if profile.college %}
+                            <span class="badge bg-light text-dark"><i class="bi bi-building me-1"></i>{{ profile.college }}</span>
+                            {% endif %}
+                            {% if profile.course or profile.academic_year %}
+                            <span class="badge bg-light text-dark"><i class="bi bi-mortarboard me-1"></i>{{ profile.course }}{% if profile.academic_year %} · {{ profile.academic_year }}{% endif %}</span>
+                            {% endif %}
+                            {% if request.user.contact_number %}
+                            <span class="badge bg-light text-dark"><i class="bi bi-telephone me-1"></i>{{ request.user.contact_number }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 text-md-end text-start">
+                        <p class="text-muted small mb-1">Member since {{ request.user.date_joined|date:"M Y" }}</p>
+                        <span class="badge bg-primary-subtle text-primary">Student Account</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="card border-0 shadow-sm mb-4">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="profile">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <div>
+                        <h3 class="h5 mb-1">Personal & Contact Information</h3>
+                        <p class="text-muted small mb-0">Update your core details and academic preferences</p>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle me-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">First Name</label>
+                        {{ user_form.first_name }}
+                        {% for error in user_form.first_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        {{ user_form.last_name }}
+                        {% for error in user_form.last_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Age</label>
+                        {{ user_form.age }}
+                        {% for error in user_form.age.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Gender</label>
+                        {{ user_form.gender }}
+                        {% for error in user_form.gender.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Primary Contact Number</label>
+                        {{ user_form.contact_number }}
+                        {% for error in user_form.contact_number.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Alternate Phone</label>
+                        {{ profile_form.phone }}
+                        {% for error in profile_form.phone.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Birth</label>
+                        {{ profile_form.date_of_birth }}
+                        {% for error in profile_form.date_of_birth.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="h6 mb-3">Address</h4>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Street Address</label>
+                        {{ profile_form.address_line }}
+                        {% for error in profile_form.address_line.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">City</label>
+                        {{ profile_form.city }}
+                        {% for error in profile_form.city.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">State</label>
+                        {{ profile_form.state }}
+                        {% for error in profile_form.state.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Pincode</label>
+                        {{ profile_form.pincode }}
+                        {% for error in profile_form.pincode.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="h6 mb-3">Academic Details</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">College / University</label>
+                        {{ profile_form.college }}
+                        {% for error in profile_form.college.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Course</label>
+                        {{ profile_form.course }}
+                        {% for error in profile_form.course.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Year</label>
+                        {{ profile_form.academic_year }}
+                        {% for error in profile_form.academic_year.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="h6 mb-3">Emergency Contact</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Name</label>
+                        {{ profile_form.emergency_contact_name }}
+                        {% for error in profile_form.emergency_contact_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Number</label>
+                        {{ profile_form.emergency_contact_phone }}
+                        {% for error in profile_form.emergency_contact_phone.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="h6 mb-3">About Me</h4>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Bio</label>
+                        {{ profile_form.bio }}
+                        {% for error in profile_form.bio.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        <small class="text-muted">Share what you're looking for in a PG/hostel to help owners understand your needs.</small>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h3 class="h5 mb-1">Security Settings</h3>
+                <p class="text-muted small mb-0">Update your password regularly to keep your account safe.</p>
+            </div>
+            <div class="card-body p-4">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#passwordCollapse" aria-expanded="false">
+                    <i class="bi bi-shield-lock me-2"></i>Change Password
+                </button>
+                <div class="collapse mt-3" id="passwordCollapse">
+                    <form method="post" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="password">
+                        <div class="col-12">
+                            <label class="form-label">Current Password</label>
+                            {{ password_form.old_password }}
+                            {% for error in password_form.old_password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            {{ password_form.new_password1 }}
+                            {% for error in password_form.new_password1.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password</label>
+                            {{ password_form.new_password2 }}
+                            {% for error in password_form.new_password2.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#passwordCollapse">Cancel</button>
+                        </div>
+                    </form>
+                    <p class="text-muted small mt-3 mb-0">Password must be at least 8 characters and include a mix of letters, numbers, and symbols.</p>
+                </div>
+            </div>
+        </div>
+
+        {% if recent_bookings %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h3 class="h5 mb-1">Recent Bookings</h3>
+                <p class="text-muted small mb-0">Quick snapshot of your last few bookings</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    {% for booking in recent_bookings %}
+                    <div class="col-12 col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <p class="fw-semibold mb-1">{{ booking.bed.room.pg.pg_name }}</p>
+                            <p class="text-muted small mb-2">Room {{ booking.bed.room.room_number }} · Bed {{ booking.bed.bed_identifier }}</p>
+                            <span class="badge bg-{{ booking.badge_class }}-subtle text-{{ booking.badge_class }} text-capitalize">{{ booking.get_status_display }}</span>
+                            <p class="small text-muted mt-2 mb-0">Booked on {{ booking.booking_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
