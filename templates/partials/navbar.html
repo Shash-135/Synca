@@ -18,13 +18,35 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">
+                            <i class="bi bi-info-circle me-1"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">
+                            <i class="bi bi-envelope me-1"></i> Contact
+                        </a>
+                    </li>
+
                     {% if user.is_authenticated %}
+                        {% if user.user_type == 'student' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}">
-                                <i class="bi bi-house me-1"></i> Home
+                            <a class="nav-link" href="{% url 'student_bookings' %}">
+                                <i class="bi bi-journal-bookmark me-1"></i> My Bookings
                             </a>
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'student_profile' %}">
+                                <i class="bi bi-person-circle me-1"></i> My Profile
+                            </a>
+                        </li>
+                        {% endif %}
                         {% if user.user_type == 'owner' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'owner_dashboard' %}">
@@ -32,13 +54,13 @@
                             </a>
                         </li>
                         {% endif %}
-                        
+
                         <li class="nav-item mx-2">
                             <span class="badge bg-secondary">
                                 <i class="bi bi-person me-1"></i> {{ user.get_full_name|default:user.username }}
                             </span>
                         </li>
-                        
+
                         <li class="nav-item">
                             <a class="btn btn-outline-dark btn-sm" href="{% url 'logout' %}">
                                 <i class="bi bi-box-arrow-right me-1"></i> Logout

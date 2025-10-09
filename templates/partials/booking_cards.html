@@ -1,0 +1,138 @@
+{% load static %}
+{% if booking_list %}
+<div class="row g-4">
+    {% for booking in booking_list %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="row g-0 flex-column flex-md-row">
+                <div class="col-md-4">
+                    <div class="ratio ratio-4x3 h-100">
+                        <img src="{{ booking.image_url }}" class="img-fluid w-100 h-100 object-fit-cover" alt="{{ booking.pg.pg_name }}">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                            <div>
+                                <h3 class="h5 mb-2">{{ booking.pg.pg_name }}</h3>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    <span>{{ booking.pg.area }}</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-{{ booking.badge_class }}-subtle text-{{ booking.badge_class }} text-capitalize">
+                                <i class="bi bi-circle-fill me-1" style="font-size: 0.65rem;"></i>{{ booking.status_label }}
+                            </span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-people text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Room Type</p>
+                                        <p class="mb-0">{{ booking.room.get_room_type_display }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-door-open text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Bed Number</p>
+                                        <p class="mb-0">{{ booking.bed.bed_identifier }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-cash text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Monthly Rent</p>
+                                        <p class="mb-0">₹{{ booking.monthly_rent|floatformat:0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-calendar text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Check-in</p>
+                                        <p class="mb-0">{{ booking.check_in|date:"M d, Y"|default:"—" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-calendar2-check text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Check-out</p>
+                                        <p class="mb-0">{{ booking.check_out|date:"M d, Y"|default:"—" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-info-circle text-muted mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">Booking ID</p>
+                                        <p class="mb-0 small">#{{ booking.id }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{% url 'pg_detail' booking.pg.id %}" class="btn btn-outline-primary btn-sm">
+                                    View Property
+                                </a>
+                                {% if booking.status == 'active' or booking.status == 'upcoming' %}
+                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#updateDates{{ booking.id }}">
+                                    Update Dates
+                                </button>
+                                <form method="post" action="{% url 'student_booking_cancel' booking.id %}" class="d-inline" onsubmit="return confirm('Cancel this booking? The bed will be released back to the property.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Cancel Booking</button>
+                                </form>
+                                {% elif booking.status == 'completed' %}
+                                <span class="badge bg-success-subtle text-success align-self-center">Completed stay</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger-subtle text-danger align-self-center">Cancelled {{ booking.cancelled_at|date:"M d, Y" }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if booking.status == 'active' or booking.status == 'upcoming' %}
+                            <div class="collapse mt-3" id="updateDates{{ booking.id }}">
+                                <form method="post" action="{% url 'student_booking_update_dates' booking.id %}" class="row g-2">
+                                    {% csrf_token %}
+                                    <div class="col-sm-6 col-lg-4">
+                                        <label class="form-label small text-muted">Check-in</label>
+                                        {{ booking.dates_form.check_in }}
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <label class="form-label small text-muted">Check-out</label>
+                                        {{ booking.dates_form.check_out }}
+                                    </div>
+                                    <div class="col-lg-4 col-sm-12 d-grid">
+                                        <button type="submit" class="btn btn-primary btn-sm mt-sm-4">Save Dates</button>
+                                    </div>
+                                </form>
+                                <p class="text-muted small mt-2 mb-0">Check-out must be on or after the check-in date.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-folder text-muted" style="font-size: 3rem;"></i>
+    <p class="text-muted mt-3 mb-1">{{ empty_message|default:"No bookings found in this category." }}</p>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-sm">Discover Properties</a>
+</div>
+{% endif %}

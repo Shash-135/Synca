@@ -26,7 +26,10 @@
                         <div class="col-12">
                             <div class="d-flex gap-3">
                                 <i class="bi bi-geo-alt fs-4 text-primary"></i>
-                                <div>{{ bed.room.pg.area }}</div>
+                                <div>
+                                    {{ bed.room.pg.area }}
+                                    <span class="badge bg-info text-dark ms-2">{{ bed.room.pg.get_pg_type_display }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -44,7 +47,7 @@
                         </div>
                         <div class="col-6">
                             <span class="text-muted">Room Type</span>
-                            <div><strong>{{ bed.room.room_type }}</strong></div>
+                            <div><strong>{{ bed.room.get_room_type_display }}</strong></div>
                         </div>
                         <div class="col-6 mt-3">
                             <span class="text-muted">Bed Identifier</span>
@@ -82,16 +85,20 @@
                         <span class="text-muted">Monthly Rent</span>
                         <div>
                             <i class="bi bi-currency-rupee"></i>
-                            <strong>{{ bed.room.price_per_bed|floatformat:0 }}</strong>
+                            <strong>{{ monthly_rent|floatformat:0 }}</strong>
                         </div>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Security Deposit</span>
+                        {% if deposit_applicable %}
                         <div>
                             <i class="bi bi-currency-rupee"></i>
-                            <strong>{{ bed.room.price_per_bed|floatformat:0 }}</strong>
+                            <strong>{{ security_deposit|floatformat:0 }}</strong>
                         </div>
+                        {% else %}
+                        <div class="text-muted">Not applicable</div>
+                        {% endif %}
                     </div>
                     
                     <hr class="my-3">

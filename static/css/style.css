@@ -113,3 +113,72 @@ body {
   background-color: #1a1a2e;
   border-color: #1a1a2e;
 }
+
+.nav-tabs {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+@media (max-width: 992px) {
+  .stat-card {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-body .row > [class*='col-'] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .ratio {
+    min-height: 200px;
+  }
+}
+
+.owner-booking-card.booking-cancelled {
+  background-color: #f5f6f8;
+  border-color: #d5d7da;
+}
+
+.owner-booking-card.booking-cancelled .card-body {
+  color: #6c757d;
+}
+
+.owner-booking-card.booking-cancelled .card-body h5 {
+  color: #6c757d;
+}
+
+.owner-booking-card.booking-cancelled .status-badge {
+  background-color: #e2e3e5;
+  color: #6c757d !important;
+}
+
+.owner-booking-card.booking-cancelled .badge.bg-light {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.owner-booking-card.booking-cancelled .btn,
+.owner-booking-card.booking-cancelled select,
+.owner-booking-card.booking-cancelled label,
+.owner-booking-card.booking-cancelled .text-muted {
+  color: #6c757d !important;
+}
+
+.owner-booking-card.booking-cancelled .btn {
+  border-color: #bfc2c6;
+}

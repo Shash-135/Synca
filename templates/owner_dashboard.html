@@ -4,14 +4,19 @@
 
 {% block content %}
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h1 class="mb-1">Owner Dashboard</h1>
             <p class="text-muted mb-0">Manage your properties and bookings</p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
-            <i class="bi bi-plus-circle me-2"></i> Add Property
-        </button>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{% url 'owner_add_offline_booking' %}">
+                <i class="bi bi-person-plus me-2"></i> Add Offline Booking
+            </a>
+            <a class="btn btn-primary" href="{% url 'add_property' %}">
+                <i class="bi bi-plus-circle me-2"></i> Add Property
+            </a>
+        </div>
     </div>
     
     <!-- Stats Cards -->
@@ -100,7 +105,7 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between text-sm mb-1">
                                     <span class="text-muted">Rooms</span>
-                                    <strong>{{ pg.rooms.count }}</strong>
+                                    <strong>{{ pg.room_count }}</strong>
                                 </div>
                                 <div class="d-flex justify-content-between text-sm mb-1">
                                     <span class="text-muted">Total Beds</span>
@@ -109,6 +114,10 @@
                                 <div class="d-flex justify-content-between text-sm">
                                     <span class="text-muted">Occupied</span>
                                     <strong>{{ pg.occupied_beds }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm">
+                                    <span class="text-muted">Available</span>
+                                    <strong>{{ pg.available_beds }}</strong>
                                 </div>
                             </div>
                             
@@ -125,9 +134,9 @@
                 <i class="bi bi-building display-1 text-muted"></i>
                 <h3 class="mt-3">No properties yet</h3>
                 <p class="text-muted mb-4">Start by adding your first property</p>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+                <a class="btn btn-primary" href="{% url 'add_property' %}">
                     <i class="bi bi-plus-circle me-2"></i> Add Your First Property
-                </button>
+                </a>
             </div>
             {% endif %}
         </div>
@@ -144,7 +153,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <strong>Room {{ room.room_number }}</strong>
-                                <span class="badge bg-light text-dark ms-2">{{ room.room_type }}</span>
+                                <span class="badge bg-light text-dark ms-2">{{ room.get_room_type_display }}</span>
                             </div>
                         </div>
                         
@@ -173,6 +182,51 @@
                         {% endif %}
                     </div>
                     {% endfor %}
+
+                    <div class="border-top pt-4 mt-4">
+                        <h6 class="fw-semibold mb-3">Add a New Room</h6>
+                        <form method="post" action="{% url 'owner_add_room' pg.id %}" class="row g-3 align-items-end">
+                            {% csrf_token %}
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Room Number</label>
+                                {{ pg.room_form.room_number }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Room Type</label>
+                                {{ pg.room_form.room_type }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Price per Bed</label>
+                                {{ pg.room_form.price_per_bed }}
+                            </div>
+                            <div class="col-md-1 d-grid">
+                                <button type="submit" class="btn btn-outline-primary">Add</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="border-top pt-4 mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-semibold mb-0">Add a Bed</h6>
+                            {% if pg.rooms.count == 0 %}
+                            <span class="badge bg-warning text-dark">Add a room first</span>
+                            {% endif %}
+                        </div>
+                        <form method="post" action="{% url 'owner_add_bed' pg.id %}" class="row g-3 align-items-end">
+                            {% csrf_token %}
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">Select Room</label>
+                                {{ pg.bed_form.room }}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">Bed Identifier</label>
+                                {{ pg.bed_form.bed_identifier }}
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="submit" class="btn btn-outline-primary" {% if pg.rooms.count == 0 %}disabled{% endif %}>Add</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             {% endfor %}
@@ -184,22 +238,58 @@
             <div class="row g-3">
                 {% for booking in bookings %}
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card owner-booking-card {{ booking.card_state }}">
                         <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <h5 class="mb-2">{{ booking.bed.room.pg.pg_name }}</h5>
+                            <div class="row g-4 align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                        <div class="me-3">
+                                            <h5 class="mb-1">{{ booking.bed.room.pg.pg_name }}</h5>
+                                            <span class="badge {% if booking.booking_type == 'Online' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                                {{ booking.booking_type }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge status-badge {{ booking.status_badge_class }} text-capitalize">{{ booking.status_label|default:"Status" }}</span>
+                                            <span class="badge bg-light text-dark">Booking ID: {{ booking.id }}</span>
+                                        </div>
+                                    </div>
                                     <div class="text-muted small">
-                                        <p class="mb-1">Room {{ booking.bed.room.room_number }} - Bed {{ booking.bed.bed_identifier }}</p>
-                                        <p class="mb-1">Booking ID: {{ booking.id }}</p>
-                                        <p class="mb-0">Date: {{ booking.booking_date|date:"M d, Y" }}</p>
+                                        <p class="mb-1">Room {{ booking.bed.room.room_number }} · Bed {{ booking.bed.bed_identifier }}</p>
+                                        <p class="mb-1">Booked on {{ booking.booking_date|date:"M d, Y" }}</p>
+                                        <p class="mb-1">
+                                            Tenant: 
+                                            {% if booking.user %}
+                                                <strong>{{ booking.user.get_full_name|default:booking.user.username }}</strong>
+                                                (<a href="mailto:{{ booking.user.email }}" class="text-decoration-none">{{ booking.user.email }}</a>)
+                                                · Age {{ booking.user.age|default:"—" }}
+                                                · {{ booking.user.get_occupation_display|default:booking.user.occupation|default:"—" }}
+                                                {% if booking.user.contact_number %}
+                                                · Contact: <a href="tel:{{ booking.user.contact_number }}" class="text-decoration-none">{{ booking.user.contact_number }}</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <em>Unassigned / offline booking</em>
+                                            {% endif %}
+                                        </p>
+                                        <p class="mb-0">Monthly Rent: <strong><i class="bi bi-currency-rupee"></i>{{ booking.bed.room.price_per_bed|floatformat:0 }}</strong></p>
                                     </div>
                                 </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge {% if booking.booking_type == 'Online' %}bg-primary{% else %}bg-secondary{% endif %} mb-2">
-                                        {{ booking.booking_type }}
-                                    </span>
-                                    <p class="text-muted small mb-0">Status: {{ booking.booking_status }}</p>
+                                <div class="col-lg-4">
+                                    <form method="post" action="{% url 'owner_update_booking' booking.id %}" class="d-grid gap-2">
+                                        {% csrf_token %}
+                                        <label for="booking-tenant-{{ booking.id }}" class="form-label small text-muted mb-1">Assign / Update Tenant</label>
+                                        <div class="input-group input-group-sm">
+                                            <select id="booking-tenant-{{ booking.id }}" name="user_id" class="form-select">
+                                                <option value="">Unassigned / Offline</option>
+                                                {% for student in students %}
+                                                <option value="{{ student.id }}" {% if booking.user and booking.user.id == student.id %}selected{% endif %}>
+                                                    {{ student.get_full_name|default:student.username }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn btn-outline-primary">Update</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -211,40 +301,23 @@
             <div class="text-center py-5">
                 <i class="bi bi-people display-1 text-muted"></i>
                 <h3 class="mt-3">No bookings yet</h3>
-                <p class="text-muted">Bookings will appear here once students start booking</p>
+                <p class="text-muted">Bookings will appear here once students start booking.</p>
+                <a class="btn btn-outline-primary" href="{% url 'owner_add_offline_booking' %}">
+                    <i class="bi bi-person-plus me-2"></i> Record Offline Booking
+                </a>
             </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Add Property Modal -->
-<div class="modal fade" id="addPropertyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Property</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-center text-muted">
-                    This feature will be available soon!<br>
-                    For now, use the Django admin panel to add properties.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% block extra_js %}
 <script>
-    // Bed availability toggle
     document.querySelectorAll('.bed-toggle').forEach(function(toggle) {
         toggle.addEventListener('change', function() {
             const bedId = this.getAttribute('data-bed-id');
             const isAvailable = this.checked;
-            
-            // AJAX call to update bed availability
+
             fetch(`/api/beds/${bedId}/toggle/`, {
                 method: 'POST',
                 headers: {
@@ -256,11 +329,10 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update UI
                     const card = toggle.closest('.card');
                     const icon = card.querySelector('i');
                     const statusText = card.querySelector('.text-muted');
-                    
+
                     if (isAvailable) {
                         icon.className = 'bi bi-door-open text-success fs-3 mb-2';
                         statusText.textContent = 'Available';
@@ -268,15 +340,16 @@
                         icon.className = 'bi bi-door-closed text-muted fs-3 mb-2';
                         statusText.textContent = 'Occupied';
                     }
-                    
-                    // Show success message
+
                     alert('Bed availability updated successfully!');
+                } else {
+                    alert(data.error || 'Failed to update bed availability');
+                    toggle.checked = !isAvailable;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Failed to update bed availability');
-                // Revert toggle
                 toggle.checked = !isAvailable;
             });
         });

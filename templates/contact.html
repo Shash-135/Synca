@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact Us - Synca{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-light py-5">
+    <div class="container text-center">
+        <h1 class="mb-3">Get in Touch</h1>
+        <p class="text-muted mx-auto" style="max-width: 48rem;">
+            Have a question or need assistance? We're here to help. Reach out to us
+            and we'll get back to you as soon as possible.
+        </p>
+    </div>
+</section>
+
+<!-- Contact Form & Info Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="mb-4">Send us a Message</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 98765 43210">
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="">Select a subject</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="booking">Booking Support</option>
+                                        <option value="property">List a Property</option>
+                                        <option value="technical">Technical Issue</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="message" name="message" rows="6" placeholder="Tell us how we can help you..." required></textarea>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="col-lg-4">
+                <div class="mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">Contact Information</h3>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex gap-3">
+                                    <i class="bi bi-geo-alt text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
+                                    <div>
+                                        <p class="mb-0 small">
+                                            123 Tech Park, Sector 15<br>
+                                            Bangalore, Karnataka 560001<br>
+                                            India
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex gap-3">
+                                    <i class="bi bi-telephone text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
+                                    <div>
+                                        <p class="mb-0 small">
+                                            +91 98765 43210<br>
+                                            +91 98765 43211
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex gap-3">
+                                    <i class="bi bi-envelope text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
+                                    <div>
+                                        <p class="mb-0 small">
+                                            support@synca.com<br>
+                                            info@synca.com
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-0">
+                                <div class="d-flex gap-3">
+                                    <i class="bi bi-clock text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
+                                    <div>
+                                        <p class="mb-0 small">
+                                            Monday - Friday: 9 AM - 6 PM<br>
+                                            Saturday: 10 AM - 4 PM<br>
+                                            Sunday: Closed
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Social Media -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-3">Follow Us</h3>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="btn btn-outline-primary" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="mx-auto" style="max-width: 48rem;">
+            <h2 class="text-center mb-5">Frequently Asked Questions</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item border mb-3 rounded">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true">
+                            How do I book a PG through Synca?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Simply search for PGs in your desired location, browse through the listings,
+                            select a property, choose an available bed, and complete the booking process
+                            online. You'll receive instant confirmation once your booking is confirmed.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border mb-3 rounded">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            Is there a booking fee?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            No, Synca does not charge any booking fees. You only pay the rent and security
+                            deposit as specified by the property owner. Our platform is free to use for
+                            students.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border mb-3 rounded">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            How can I list my property on Synca?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Register as a property owner and use the "Add Property" feature from your
+                            dashboard to list your PG or hostel. Our team will verify and approve your
+                            listing within 24 hours.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border mb-3 rounded">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Can I cancel or modify my booking?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yes, you can cancel or modify your booking through your account dashboard.
+                            Cancellation policies vary by property, so please check the specific terms
+                            before booking.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border mb-3 rounded">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            How do I know if a bed is available?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Our platform shows real-time availability. When you view a property, you can
+                            see exactly which beds are available in each room. Green indicators show
+                            available beds, while gray indicates occupied beds.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
