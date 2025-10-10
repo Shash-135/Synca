@@ -1,6 +1,56 @@
 (function () {
   const body = document.body;
 
+  const ALERT_LEVELS = {
+    success: 'success',
+    error: 'danger',
+    warning: 'warning',
+    info: 'info',
+  };
+
+  function getAlertContainer() {
+    let container = document.getElementById('app-alert-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'app-alert-container';
+      container.className = 'position-fixed top-0 end-0 p-3';
+      container.style.zIndex = '1080';
+      container.setAttribute('aria-live', 'polite');
+      container.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(container);
+    }
+    return container;
+  }
+
+  function showAlert(message, level, options) {
+    const variant = ALERT_LEVELS[level] || ALERT_LEVELS.info;
+    const { autoHide = true, delay = 4000 } = options || {};
+    const container = getAlertContainer();
+
+    const alertEl = document.createElement('div');
+    alertEl.className = `alert alert-${variant} alert-dismissible fade show shadow`;
+    alertEl.setAttribute('role', 'alert');
+    alertEl.innerHTML = message;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-close';
+    closeBtn.setAttribute('data-bs-dismiss', 'alert');
+    closeBtn.setAttribute('aria-label', 'Close alert');
+    alertEl.appendChild(closeBtn);
+
+    container.appendChild(alertEl);
+
+    if (autoHide) {
+      setTimeout(function () {
+        const instance = bootstrap.Alert.getOrCreateInstance(alertEl);
+        instance.close();
+      }, delay);
+    }
+
+    return alertEl;
+  }
+
   function getCookie(name) {
     const cookies = document.cookie ? document.cookie.split(';') : [];
     for (let i = 0; i < cookies.length; i += 1) {
@@ -105,15 +155,15 @@
                   statusText.textContent = isAvailable ? 'Available' : 'Occupied';
                 }
               }
-              alert('Bed availability updated successfully!');
+              showAlert('Bed availability updated successfully!', 'success');
             } else {
-              alert((data && data.error) || 'Failed to update bed availability');
+              showAlert((data && data.error) || 'Failed to update bed availability', 'error');
               toggle.checked = !isAvailable;
             }
           })
           .catch(function (error) {
             console.error('Error updating bed availability', error);
-            alert('Failed to update bed availability');
+            showAlert('Failed to update bed availability', 'error');
             toggle.checked = !isAvailable;
           });
       });
@@ -139,8 +189,10 @@
       beds.forEach(function (bed) {
         bed.addEventListener('click', function (event) {
           event.preventDefault();
-          alert('Please login to book a bed');
-          window.location.href = loginUrl;
+          showAlert('Please login to book a bed', 'warning');
+          setTimeout(function () {
+            window.location.href = loginUrl;
+          }, 1500);
         });
       });
       return;
@@ -150,7 +202,7 @@
       beds.forEach(function (bed) {
         bed.addEventListener('click', function (event) {
           event.preventDefault();
-          alert('Only students can book beds online');
+          showAlert('Only students can book beds online', 'warning');
         });
       });
     }
@@ -178,6 +230,8 @@
     setupBedToggle();
     setupPgDetailBeds();
     setupSplash();
+
+    window.showAlert = showAlert;
   }
 
   if (document.readyState === 'loading') {

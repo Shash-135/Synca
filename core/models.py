@@ -113,19 +113,26 @@ class Booking(models.Model):
         self.cancelled_at = timezone.now()
         self.save(update_fields=['status', 'cancelled_at'])
 
-    def refresh_status(self):
-        if self.status in {'cancelled'}:
-            return
-        today = timezone.now().date()
+    def calculate_status(self, today=None):
+        if self.status == 'cancelled':
+            return self.status
+        today = today or timezone.now().date()
         if self.check_in and self.check_in > today:
-            new_status = 'upcoming'
-        elif self.check_out and self.check_out < today:
-            new_status = 'completed'
-        else:
-            new_status = 'active'
-        if new_status != self.status:
-            self.status = new_status
+            return 'upcoming'
+        if self.check_out and self.check_out < today:
+            return 'completed'
+        if self.check_in and self.check_in <= today and (not self.check_out or self.check_out >= today):
+            return 'active'
+        return self.status
+
+    def refresh_status(self, persist=True):
+        new_status = self.calculate_status()
+        if new_status == self.status:
+            return self.status
+        self.status = new_status
+        if persist:
             self.save(update_fields=['status'])
+        return self.status
 
 
 class StudentProfile(models.Model):

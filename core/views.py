@@ -8,7 +8,11 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django import forms
+from .forms import (
+    RegisterForm, OfflineBookingForm, AddRoomForm, AddBedForm,
+    StudentBasicForm, StudentProfileForm, BookingDatesForm
+)
+from .decorators import owner_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
@@ -18,218 +22,6 @@ from .models import PG, Room, Booking, Bed, StudentProfile
 
 User = get_user_model()
 
-class RegisterForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-    gender = forms.ChoiceField(
-        label='Gender',
-        required=False,
-        choices=[('', 'Select gender')] + list(User.GENDER_CHOICES),
-        widget=forms.Select,
-    )
-
-    class Meta:
-        model = User
-        fields = [
-            'username', 'email', 'first_name', 'last_name',
-            'age', 'gender', 'occupation', 'contact_number', 'user_type'
-        ]
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            self.add_error('password2', "Passwords do not match.")
-        return cleaned_data
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
-        user.gender = self.cleaned_data.get('gender') or None
-        if commit:
-            user.save()
-        return user
-
-
-class OfflineBookingForm(forms.Form):
-    bed = forms.ModelChoiceField(queryset=Bed.objects.none(), label='Select Bed')
-    first_name = forms.CharField(max_length=150)
-    last_name = forms.CharField(max_length=150)
-    email = forms.EmailField()
-    age = forms.IntegerField(required=False, min_value=0)
-    gender = forms.ChoiceField(
-        required=False,
-        choices=[('', 'Select gender')] + list(User.GENDER_CHOICES),
-    )
-    occupation = forms.ChoiceField(
-        required=False,
-        choices=[('', 'Select occupation')] + list(User.OCCUPATION_CHOICES),
-    )
-    contact_number = forms.CharField(required=False, max_length=15)
-
-    def __init__(self, *args, owner=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        if owner is None:
-            raise ValueError("OfflineBookingForm requires an owner instance")
-        self.owner = owner
-        available_beds = Bed.objects.filter(
-            room__pg__owner=owner,
-            is_available=True
-        ).select_related('room__pg').order_by('room__pg__pg_name', 'room__room_number', 'bed_identifier')
-        self.fields['bed'].queryset = available_beds
-        self.fields['bed'].label_from_instance = lambda bed: (
-            f"{bed.room.pg.pg_name} · Room {bed.room.room_number} · Bed {bed.bed_identifier}"
-        )
-        widget_classes = {
-            'bed': 'form-select',
-            'first_name': 'form-control',
-            'last_name': 'form-control',
-            'email': 'form-control',
-            'age': 'form-control',
-            'gender': 'form-select',
-            'occupation': 'form-select',
-            'contact_number': 'form-control',
-        }
-        for field_name, css_class in widget_classes.items():
-            field = self.fields.get(field_name)
-            if field:
-                existing_class = field.widget.attrs.get('class', '')
-                field.widget.attrs['class'] = f"{existing_class} {css_class}".strip()
-
-    def clean_bed(self):
-        bed = self.cleaned_data['bed']
-        if bed.room.pg.owner != self.owner:
-            raise forms.ValidationError("You can only assign beds from your own properties.")
-        if not bed.is_available:
-            raise forms.ValidationError("Selected bed is no longer available.")
-        return bed
-
-
-class AddRoomForm(forms.ModelForm):
-    class Meta:
-        model = Room
-        fields = ['room_number', 'room_type', 'price_per_bed']
-
-    def __init__(self, *args, pg=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        if pg is None:
-            raise ValueError("AddRoomForm requires a PG instance")
-        self.pg = pg
-        css_map = {
-            'room_number': 'form-control',
-            'room_type': 'form-select',
-            'price_per_bed': 'form-control',
-        }
-        for field_name, css_class in css_map.items():
-            field = self.fields[field_name]
-            existing_class = field.widget.attrs.get('class', '')
-            field.widget.attrs['class'] = f"{existing_class} {css_class}".strip()
-
-    def clean_room_number(self):
-        room_number = self.cleaned_data['room_number']
-        if Room.objects.filter(pg=self.pg, room_number__iexact=room_number).exists():
-            raise forms.ValidationError("A room with this number already exists in this PG.")
-        return room_number
-
-    def save(self, commit=True):
-        room = super().save(commit=False)
-        room.pg = self.pg
-        if commit:
-            room.save()
-        return room
-
-
-class AddBedForm(forms.ModelForm):
-    class Meta:
-        model = Bed
-        fields = ['room', 'bed_identifier']
-
-    def __init__(self, *args, pg=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        if pg is None:
-            raise ValueError("AddBedForm requires a PG instance")
-        self.pg = pg
-        self.fields['room'].queryset = Room.objects.filter(pg=pg).order_by('room_number')
-        css_map = {
-            'room': 'form-select',
-            'bed_identifier': 'form-control',
-        }
-        for field_name, css_class in css_map.items():
-            field = self.fields[field_name]
-            existing_class = field.widget.attrs.get('class', '')
-            field.widget.attrs['class'] = f"{existing_class} {css_class}".strip()
-
-    def clean_bed_identifier(self):
-        bed_identifier = self.cleaned_data['bed_identifier']
-        room = self.cleaned_data.get('room')
-        if room and Bed.objects.filter(room=room, bed_identifier__iexact=bed_identifier).exists():
-            raise forms.ValidationError("This bed identifier already exists in the selected room.")
-        return bed_identifier
-
-
-class StudentBasicForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'age', 'gender', 'contact_number']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-
-class StudentProfileForm(forms.ModelForm):
-    class Meta:
-        model = StudentProfile
-        fields = [
-            'phone',
-            'date_of_birth',
-            'address_line',
-            'city',
-            'state',
-            'pincode',
-            'college',
-            'course',
-            'academic_year',
-            'emergency_contact_name',
-            'emergency_contact_phone',
-            'bio',
-        ]
-        widgets = {
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'address_line': forms.TextInput(attrs={'class': 'form-control'}),
-            'city': forms.TextInput(attrs={'class': 'form-control'}),
-            'state': forms.TextInput(attrs={'class': 'form-control'}),
-            'pincode': forms.TextInput(attrs={'class': 'form-control'}),
-            'college': forms.TextInput(attrs={'class': 'form-control'}),
-            'course': forms.TextInput(attrs={'class': 'form-control'}),
-            'academic_year': forms.TextInput(attrs={'class': 'form-control'}),
-            'emergency_contact_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'emergency_contact_phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-        }
-
-
-class BookingDatesForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['check_in', 'check_out']
-        widgets = {
-            'check_in': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'check_out': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        check_in = cleaned_data.get('check_in')
-        check_out = cleaned_data.get('check_out')
-        if check_in and check_out and check_out < check_in:
-            self.add_error('check_out', "Check-out date cannot be before check-in date.")
-        return cleaned_data
 
 def splash_view(request):
     return render(request, 'splash.html')
@@ -316,10 +108,8 @@ def register_view(request):
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
 
+@owner_required
 def owner_dashboard_view(request):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to access the owner dashboard.")
-        return redirect('login')
     pgs_qs = (
         PG.objects
         .filter(owner=request.user)
@@ -354,7 +144,7 @@ def owner_dashboard_view(request):
 
     bookings = []
     for booking in bookings_qs:
-        booking.refresh_status()
+        booking.refresh_status(persist=False)
         booking.status_label = booking.get_status_display()
         booking.status_badge_class = status_badge_map.get(booking.status, 'bg-light text-muted')
         booking.card_state = 'booking-cancelled' if booking.status == 'cancelled' else ''
@@ -381,10 +171,8 @@ def owner_dashboard_view(request):
     return render(request, 'owner_dashboard.html', context)
 
 
+@owner_required
 def add_property_view(request):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to add a property.")
-        return redirect('login')
 
     context = {
         'pg_type_choices': PG.PG_TYPE_CHOICES,
@@ -596,10 +384,8 @@ def booking_success_view(request, booking_id):
     return render(request, 'booking_success.html', context)
 
 
+@owner_required
 def owner_update_booking_view(request, booking_id):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to modify bookings.")
-        return redirect('login')
 
     booking = get_object_or_404(Booking.objects.select_related('bed__room__pg'), id=booking_id)
     if booking.bed.room.pg.owner != request.user:
@@ -620,10 +406,8 @@ def owner_update_booking_view(request, booking_id):
 
 
 @require_POST
+@owner_required
 def owner_add_room_view(request, pg_id):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to add rooms.")
-        return redirect('login')
 
     pg = get_object_or_404(PG, id=pg_id, owner=request.user)
     form = AddRoomForm(request.POST, pg=pg)
@@ -638,10 +422,8 @@ def owner_add_room_view(request, pg_id):
 
 
 @require_POST
+@owner_required
 def owner_add_bed_view(request, pg_id):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to add beds.")
-        return redirect('login')
 
     pg = get_object_or_404(PG, id=pg_id, owner=request.user)
     form = AddBedForm(request.POST, pg=pg)
@@ -655,10 +437,8 @@ def owner_add_bed_view(request, pg_id):
     return redirect('owner_dashboard')
 
 
+@owner_required
 def owner_add_offline_booking_view(request):
-    if not request.user.is_authenticated or getattr(request.user, 'user_type', None) != 'owner':
-        messages.error(request, "You do not have permission to add bookings.")
-        return redirect('login')
 
     form = OfflineBookingForm(request.POST or None, owner=request.user)
 
@@ -792,7 +572,7 @@ def student_profile_view(request):
     }
 
     for booking in recent_bookings:
-        booking.refresh_status()
+        booking.refresh_status(persist=False)
         booking.badge_class = badge_map.get(booking.status, 'secondary')
 
     context = {
@@ -834,7 +614,7 @@ def student_bookings_view(request):
     status_counts = {'all': 0, 'active': 0, 'upcoming': 0, 'completed': 0, 'cancelled': 0}
 
     for booking in bookings_qs:
-        booking.refresh_status()
+        booking.refresh_status(persist=False)
         booking.pg = booking.bed.room.pg
         booking.room = booking.bed.room
         if not booking.check_in:

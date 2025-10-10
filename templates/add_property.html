@@ -27,66 +27,96 @@
                 <div class="card-body p-4 p-md-5">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors|join:', ' }}
+                            </div>
+                        {% endif %}
                         
                         <!-- Basic Information -->
                         <div class="mb-5">
                             <h3 class="h5 mb-4 pb-2 border-bottom">Basic Information</h3>
                             <div class="row g-3">
                                 <div class="col-md-8">
-                                    <label for="pg_name" class="form-label">PG/Hostel Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="pg_name" name="pg_name" 
-                                           required placeholder="e.g., Sunshine PG" value="{{ form_data.pg_name|default:'' }}">
+                                    <label for="id_pg_name" class="form-label">PG/Hostel Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control{% if form.pg_name.errors %} is-invalid{% endif %}" id="id_pg_name" name="pg_name"
+                                           required placeholder="e.g., Sunshine PG" value="{{ form.pg_name.value|default:'' }}">
+                                    {% if form.pg_name.errors %}
+                                        <div class="invalid-feedback">{{ form.pg_name.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
-                                
+
                                 <div class="col-md-4">
-                                    <label for="area" class="form-label">Area <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="area" name="area" 
-                                           required placeholder="e.g., Koramangala" value="{{ form_data.area|default:'' }}">
+                                    <label for="id_area" class="form-label">Area <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control{% if form.area.errors %} is-invalid{% endif %}" id="id_area" name="area"
+                                           required placeholder="e.g., Koramangala" value="{{ form.area.value|default:'' }}">
+                                    {% if form.area.errors %}
+                                        <div class="invalid-feedback">{{ form.area.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
-                                
+
                                 <div class="col-12">
-                                    <label for="address" class="form-label">Full Address <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="address" name="address" rows="2" 
-                                              required placeholder="Enter complete address with landmarks">{{ form_data.address|default:'' }}</textarea>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label for="city" class="form-label">City <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="city" name="city" 
-                                           required placeholder="e.g., Bangalore" value="{{ form_data.city|default:'' }}">
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label for="pincode" class="form-label">PIN Code <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="pincode" name="pincode" 
-                                           required pattern="[0-9]{6}" placeholder="e.g., 560034" value="{{ form_data.pincode|default:'' }}">
-                                </div>
-                                
-                                <div class="col-12">
-                                    <label for="description" class="form-label">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="4" 
-                                              placeholder="Describe your property, facilities, and nearby locations...">{{ form_data.description|default:'' }}</textarea>
+                                    <label for="id_address" class="form-label">Full Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control{% if form.address.errors %} is-invalid{% endif %}" id="id_address" name="address" rows="2" required placeholder="Enter complete address with landmarks">{{ form.address.value|default:'' }}</textarea>
+                                    {% if form.address.errors %}
+                                        <div class="invalid-feedback">{{ form.address.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="pg_type" class="form-label">PG Type <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="pg_type" name="pg_type" required>
-                                        {% for value, label in pg_type_choices %}
-                                        <option value="{{ value }}" {% if selected_pg_type == value %}selected{% endif %}>{{ label }}</option>
+                                    <label for="id_city" class="form-label">City <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control{% if form.city.errors %} is-invalid{% endif %}" id="id_city" name="city"
+                                           required placeholder="e.g., Bangalore" value="{{ form.city.value|default:'' }}">
+                                    {% if form.city.errors %}
+                                        <div class="invalid-feedback">{{ form.city.errors|join:', ' }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="id_pincode" class="form-label">PIN Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control{% if form.pincode.errors %} is-invalid{% endif %}" id="id_pincode" name="pincode"
+                                           required pattern="[0-9]{6}" placeholder="e.g., 560034" value="{{ form.pincode.value|default:'' }}">
+                                    {% if form.pincode.errors %}
+                                        <div class="invalid-feedback">{{ form.pincode.errors|join:', ' }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="id_description" class="form-label">Description</label>
+                                    <textarea class="form-control{% if form.description.errors %} is-invalid{% endif %}" id="id_description" name="description" rows="4" placeholder="Describe your property, facilities, and nearby locations...">{{ form.description.value|default:'' }}</textarea>
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback">{{ form.description.errors|join:', ' }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="id_pg_type" class="form-label">PG Type <span class="text-danger">*</span></label>
+                                    <select class="form-select{% if form.pg_type.errors %} is-invalid{% endif %}" id="id_pg_type" name="pg_type" required>
+                                        {% for value, label in form.pg_type.field.choices %}
+                                            <option value="{{ value }}" {% if form.pg_type.value == value %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
+                                    {% if form.pg_type.errors %}
+                                        <div class="invalid-feedback">{{ form.pg_type.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label for="deposit" class="form-label">Deposit Amount</label>
-                                    <input type="number" class="form-control" id="deposit" name="deposit" step="0.01" min="0"
-                                           placeholder="e.g., 5000" value="{{ form_data.deposit|default:'' }}">
+                                    <label for="id_deposit" class="form-label">Deposit Amount</label>
+                                    <input type="number" class="form-control{% if form.deposit.errors %} is-invalid{% endif %}" id="id_deposit" name="deposit" step="0.01" min="0"
+                                           placeholder="e.g., 5000" value="{{ form.deposit.value|default:'' }}">
+                                    {% if form.deposit.errors %}
+                                        <div class="invalid-feedback">{{ form.deposit.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label for="lock_in_period" class="form-label">Lock-in Period (months)</label>
-                                    <input type="number" class="form-control" id="lock_in_period" name="lock_in_period" min="0"
-                                           placeholder="e.g., 3" value="{{ form_data.lock_in_period|default:'' }}">
+                                    <label for="id_lock_in_period" class="form-label">Lock-in Period (months)</label>
+                                    <input type="number" class="form-control{% if form.lock_in_period.errors %} is-invalid{% endif %}" id="id_lock_in_period" name="lock_in_period" min="0"
+                                           placeholder="e.g., 3" value="{{ form.lock_in_period.value|default:'' }}">
+                                    {% if form.lock_in_period.errors %}
+                                        <div class="invalid-feedback">{{ form.lock_in_period.errors|join:', ' }}</div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -95,106 +125,35 @@
                         <div class="mb-5">
                             <h3 class="h5 mb-4 pb-2 border-bottom">Amenities</h3>
                             <div class="row g-3">
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="WiFi" id="wifi"
-                             {% if 'WiFi' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="wifi">
-                                            <i class="bi bi-wifi me-1"></i> WiFi
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="AC" id="ac"
-                             {% if 'AC' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="ac">
-                                            <i class="bi bi-snow me-1"></i> Air Conditioning
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Meals" id="meals"
-                             {% if 'Meals' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="meals">
-                                            <i class="bi bi-cup-hot me-1"></i> Meals Included
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Laundry" id="laundry"
-                             {% if 'Laundry' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="laundry">
-                                            <i class="bi bi-droplet me-1"></i> Laundry
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Security" id="security"
-                             {% if 'Security' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="security">
-                                            <i class="bi bi-shield-check me-1"></i> 24/7 Security
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Parking" id="parking"
-                             {% if 'Parking' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="parking">
-                                            <i class="bi bi-car-front me-1"></i> Parking
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Gym" id="gym"
-                             {% if 'Gym' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="gym">
-                                            <i class="bi bi-heart-pulse me-1"></i> Gym
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Power Backup" id="powerBackup"
-                             {% if 'Power Backup' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="powerBackup">
-                                            <i class="bi bi-lightning-charge me-1"></i> Power Backup
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="form-check">
-                         <input class="form-check-input" type="checkbox" name="amenities" value="Refrigerator" id="fridge"
-                             {% if 'Refrigerator' in selected_amenities %}checked{% endif %}>
-                                        <label class="form-check-label" for="fridge">
-                                            <i class="bi bi-thermometer-snow me-1"></i> Refrigerator
-                                        </label>
-                                    </div>
-                                </div>
+                                {% with selected=form.amenities.value %}
+                                    {% for value, label in amenity_choices %}
+                                        <div class="col-md-4 col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="amenities" value="{{ value }}" id="amenity-{{ forloop.counter }}"
+                                                       {% if selected and value in selected %}checked{% endif %}>
+                                                <label class="form-check-label" for="amenity-{{ forloop.counter }}">
+                                                    {{ label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endwith %}
                             </div>
+                            {% if form.amenities.errors %}
+                                <div class="text-danger small mt-2">{{ form.amenities.errors|join:', ' }}</div>
+                            {% endif %}
                         </div>
                         
                         <!-- Property Image -->
                         <div class="mb-5">
                             <h3 class="h5 mb-4 pb-2 border-bottom">Property Image</h3>
                             <div class="mb-3">
-                                <label for="property_image" class="form-label">Main Image <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="property_image" name="property_image" 
-                                       accept="image/*" required>
+                                <label for="id_property_image" class="form-label">Main Image {% if form.property_image.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                <input type="file" class="form-control{% if form.property_image.errors %} is-invalid{% endif %}" id="id_property_image" name="property_image" accept="image/*" {% if form.property_image.field.required %}required{% endif %}>
                                 <div class="form-text">Upload a high-quality image of your property (Max 5MB)</div>
+                                {% if form.property_image.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.property_image.errors|join:', ' }}</div>
+                                {% endif %}
                             </div>
                         </div>
                         
