@@ -169,7 +169,7 @@
                                                data-bed-id="{{ bed.id }}"
                                                {% if bed.is_available %}checked{% endif %}>
                                     </div>
-                                    <small class="text-muted mt-1">
+                                    <small class="text-muted mt-1 bed-status-text">
                                         {% if bed.is_available %}Available{% else %}Occupied{% endif %}
                                     </small>
                                 </div>
@@ -311,49 +311,5 @@
     </div>
 </div>
 
-{% block extra_js %}
-<script>
-    document.querySelectorAll('.bed-toggle').forEach(function(toggle) {
-        toggle.addEventListener('change', function() {
-            const bedId = this.getAttribute('data-bed-id');
-            const isAvailable = this.checked;
-
-            fetch(`/api/beds/${bedId}/toggle/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ is_available: isAvailable })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const card = toggle.closest('.card');
-                    const icon = card.querySelector('i');
-                    const statusText = card.querySelector('.text-muted');
-
-                    if (isAvailable) {
-                        icon.className = 'bi bi-door-open text-success fs-3 mb-2';
-                        statusText.textContent = 'Available';
-                    } else {
-                        icon.className = 'bi bi-door-closed text-muted fs-3 mb-2';
-                        statusText.textContent = 'Occupied';
-                    }
-
-                    alert('Bed availability updated successfully!');
-                } else {
-                    alert(data.error || 'Failed to update bed availability');
-                    toggle.checked = !isAvailable;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to update bed availability');
-                toggle.checked = !isAvailable;
-            });
-        });
-    });
-</script>
-{% endblock %}
+{% block extra_js %}{% endblock %}
 {% endblock %}

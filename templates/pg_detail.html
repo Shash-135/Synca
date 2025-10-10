@@ -3,7 +3,9 @@
 {% block title %}{{ pg.pg_name }} - Synca{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-4" id="pgDetail"
+    data-login-url="{% url 'login' %}?next={{ request.get_full_path|urlencode }}"
+    data-user-auth="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-4">
         <i class="bi bi-chevron-left me-1"></i> Back to Search
     </a>
@@ -173,28 +175,5 @@
     {% endif %}
 </div>
 
-{% block extra_js %}
-{% if not user.is_authenticated %}
-<script>
-    // If user is not logged in and clicks a bed, redirect to login
-    document.querySelectorAll('.bed-available').forEach(function(element) {
-        element.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('Please login to book a bed');
-            window.location.href = "{% url 'login' %}?next={{ request.path }}";
-        });
-    });
-</script>
-{% elif user.user_type != 'student' %}
-<script>
-    // If user is not a student and clicks a bed, show alert
-    document.querySelectorAll('.bed-available').forEach(function(element) {
-        element.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('Only students can book beds online');
-        });
-    });
-</script>
-{% endif %}
-{% endblock %}
+{% block extra_js %}{% endblock %}
 {% endblock %}

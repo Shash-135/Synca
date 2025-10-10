@@ -141,6 +141,10 @@ python manage.py test
 - `python manage.py loaddata backup.json` to restore sample data.
 - `python manage.py shell_plus` (if you enable `django-extensions`) for interactive debugging.
 
+### Session Policy
+- Sessions follow Django's default behavior: users stay signed in until they log out or their cookie naturally expires.
+- No automatic logout is triggered on tab switches, reloads, or browser close; adjust `SESSION_COOKIE_AGE` in `settings.py` if you need custom lifetimes.
+
 ---
 
 ## Roadmap

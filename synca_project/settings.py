@@ -3,8 +3,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-your-temp-key-replace-me'
-DEBUG = True
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-temp-key-replace-me')
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [ 
     'localhost',
@@ -55,11 +55,11 @@ WSGI_APPLICATION = 'synca_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'synca_db',
-        'USER': 'synca_user',
-        'PASSWORD': 'synca123',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': os.getenv('MYSQL_DATABASE', 'synca_db'),
+        'USER': os.getenv('MYSQL_USER', 'synca_user'),
+        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'synca123'),
+        'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
+        'PORT': os.getenv('MYSQL_PORT', '3306'),
     }
 }
 
