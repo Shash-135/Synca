@@ -256,8 +256,11 @@
         }
     </style>
 </head>
-<body>
-    <div class="splash-container" id="splashContainer">
+<body
+    data-auth="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+    data-user-type="{% if request.user.is_authenticated %}{{ request.user.user_type|default_if_none:'' }}{% endif %}"
+>
+    <div class="splash-container" id="splashContainer" data-redirect-url="{% url 'home' %}">
         <!-- Animated background circles -->
         <div class="bg-circle bg-circle-1"></div>
         <div class="bg-circle bg-circle-2"></div>
@@ -294,17 +297,6 @@
         <div class="footer-text">Your Home Away From Home</div>
     </div>
 
-    <script>
-        // Auto-dismiss splash screen after animation completes
-        setTimeout(function() {
-            const splashContainer = document.getElementById('splashContainer');
-            splashContainer.classList.add('fade-out');
-            
-            // Redirect to home page after fade out
-            setTimeout(function() {
-                window.location.href = '{% url "home" %}';  // Update with your Django URL name
-            }, 500);
-        }, 3000);
-    </script>
+    <script src="{% static 'js/main.js' %}" defer></script>
 </body>
 </html>

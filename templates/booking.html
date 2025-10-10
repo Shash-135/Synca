@@ -128,17 +128,5 @@
     </div>
 </div>
 
-{% block extra_js %}
-<script>
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
-        const confirmBtn = document.getElementById('confirmBtn');
-        const spinner = document.getElementById('spinner');
-        const btnText = document.getElementById('btnText');
-        
-        confirmBtn.disabled = true;
-        spinner.classList.remove('d-none');
-        btnText.textContent = ' Processing...';
-    });
-</script>
-{% endblock %}
+{% block extra_js %}{% endblock %}
 {% endblock %}

@@ -125,21 +125,4 @@
         </div>
     </div>
 </div>
-<script>
-function toggleOccupationField() {
-    var userType = document.querySelector('input[name="user_type"]:checked').value;
-    var occupationField = document.getElementById('occupation-field');
-    if (userType === 'student') {
-        occupationField.style.display = 'block';
-    } else {
-        occupationField.style.display = 'none';
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    toggleOccupationField();
-    document.querySelectorAll('input[name="user_type"]').forEach(function(el) {
-        el.addEventListener('change', toggleOccupationField);
-    });
-});
-</script>
 {% endblock %}
