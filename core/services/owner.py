@@ -23,6 +23,39 @@ class OwnerDashboardStats:
     occupancy_rate: float
 
 
+@dataclass(frozen=True)
+class BookingActionOutcome:
+    level: str
+    message: str
+
+
+class OwnerInventoryService:
+    """Manage room and bed creation helpers for an owner's PGs."""
+
+    def __init__(self, owner):
+        self.owner = owner
+
+    def room_form(self, pg: PG, data: Any | None = None) -> AddRoomForm:
+        return AddRoomForm(data, pg=pg)
+
+    def bed_form(self, pg: PG, data: Any | None = None) -> AddBedForm:
+        return AddBedForm(data, pg=pg)
+
+    def create_room(self, pg: PG, data: Any) -> tuple[bool, AddRoomForm, Any]:
+        form = self.room_form(pg, data)
+        if form.is_valid():
+            room = form.save()
+            return True, form, room
+        return False, form, None
+
+    def create_bed(self, pg: PG, data: Any) -> tuple[bool, AddBedForm, Any]:
+        form = self.bed_form(pg, data)
+        if form.is_valid():
+            bed = form.save()
+            return True, form, bed
+        return False, form, None
+
+
 class OwnerDashboardService:
     """Aggregate data required for the owner dashboard."""
 
@@ -34,8 +67,9 @@ class OwnerDashboardService:
         "pending": "bg-warning-subtle text-warning",
     }
 
-    def __init__(self, owner):
+    def __init__(self, owner, inventory_service: OwnerInventoryService | None = None):
         self.owner = owner
+        self.inventory_service = inventory_service or OwnerInventoryService(owner)
 
     def properties(self) -> Iterable[PG]:
         queryset = (
@@ -58,8 +92,8 @@ class OwnerDashboardService:
         )
         pgs = list(queryset)
         for pg in pgs:
-            pg.room_form = AddRoomForm(pg=pg)
-            pg.bed_form = AddBedForm(pg=pg)
+            pg.room_form = self.inventory_service.room_form(pg)
+            pg.bed_form = self.inventory_service.bed_form(pg)
         return pgs
 
     def bookings(self) -> list[Booking]:
@@ -149,6 +183,39 @@ class OfflineBookingService:
         bed.is_available = False
         bed.save(update_fields=["is_available"])
         return booking
+
+
+class OwnerBookingActionService:
+    """Approve or cancel bookings while enforcing ownership rules."""
+
+    def __init__(self, owner):
+        self.owner = owner
+
+    def _owns_booking(self, booking: Booking) -> bool:
+        bed = booking.bed
+        return bool(bed and bed.room.pg.owner_id == self.owner.id)
+
+    def approve(self, booking: Booking) -> BookingActionOutcome:
+        if not self._owns_booking(booking):
+            raise PermissionError("Cannot modify bookings for another owner.")
+        if booking.status != "pending":
+            return BookingActionOutcome("info", "This booking is no longer awaiting approval.")
+        booking.mark_active()
+        if booking.bed:
+            booking.bed.is_available = False
+            booking.bed.save(update_fields=["is_available"])
+        return BookingActionOutcome("success", "Booking approved and activated.")
+
+    def cancel(self, booking: Booking) -> BookingActionOutcome:
+        if not self._owns_booking(booking):
+            raise PermissionError("Cannot modify bookings for another owner.")
+        if booking.status == "cancelled":
+            return BookingActionOutcome("info", "This booking is already cancelled.")
+        booking.mark_cancelled()
+        if booking.bed:
+            booking.bed.is_available = True
+            booking.bed.save(update_fields=["is_available"])
+        return BookingActionOutcome("success", "Booking request cancelled.")
 
 
 def slugify_username(first_name: str, last_name: str, email: str | None) -> str:

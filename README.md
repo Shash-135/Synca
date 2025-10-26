@@ -139,7 +139,7 @@ python manage.py test
 ### Service Layer Overview
 The Django app now organises complex orchestration logic into dedicated services under `core/services/`:
 - `pg.py` bundles catalog/detail builders for public pages.
-- `owner.py` delivers dashboard aggregates, inventory helpers, and offline booking flows.
+- `owner.py` delivers dashboard aggregates, inventory helpers (room/bed creation, booking approvals), and offline booking flows.
 - `student.py` centralises booking quotes, profile updates, history grouping, and mutation helpers.
 
 Each class-based view composes these services to keep controllers thin and reuse domain logic across features. When adding new functionality, prefer introducing a service first and then consuming it from the view.
