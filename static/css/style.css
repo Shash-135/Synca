@@ -255,36 +255,3 @@ body {
   }
 }
 
-.owner-booking-card.booking-cancelled {
-  background-color: #f5f6f8;
-  border-color: #d5d7da;
-}
-
-.owner-booking-card.booking-cancelled .card-body {
-  color: #6c757d;
-}
-
-.owner-booking-card.booking-cancelled .card-body h5 {
-  color: #6c757d;
-}
-
-.owner-booking-card.booking-cancelled .status-badge {
-  background-color: #e2e3e5;
-  color: #6c757d !important;
-}
-
-.owner-booking-card.booking-cancelled .badge.bg-light {
-  background-color: #e9ecef;
-  color: #6c757d;
-}
-
-.owner-booking-card.booking-cancelled .btn,
-.owner-booking-card.booking-cancelled select,
-.owner-booking-card.booking-cancelled label,
-.owner-booking-card.booking-cancelled .text-muted {
-  color: #6c757d !important;
-}
-
-.owner-booking-card.booking-cancelled .btn {
-  border-color: #bfc2c6;
-}

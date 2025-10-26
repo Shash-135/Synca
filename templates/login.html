@@ -2,16 +2,19 @@
 {% load static %}
 {% block title %}Login - Synca{% endblock %}
 
+{% block meta_description %}Access your Synca account to manage bookings, track property approvals, and stay up to date on PG availability across Bangalore.{% endblock %}
+
 {% block content %}
 <div class="hero-section">
     <div class="container">
+        <h1 class="visually-hidden">Log in to Synca</h1>
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
                 <div class="card border-0 shadow">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
-                                <img src="{% static 'images/logo.png' %}" alt="Synca Logo" style="height: 40px;">
+                                <img src="{% static 'images/logo.png' %}" alt="Synca Logo" style="height: 40px;" loading="lazy">
                                 <div class="text-start">
                                     <h2 class="mb-0">Synca</h2>
                                     <p class="small text-muted mb-0">Syncing up with the perfect place</p>
@@ -33,14 +36,14 @@
                             
                             <div class="mb-3">
                                 <label for="username" class="form-label">Email or Username</label>
-                                <input type="text" class="form-control" id="username" name="username" 
-                                       required placeholder="your.email@example.com">
+                    <input type="text" class="form-control" id="username" name="username" 
+                        required placeholder="your.email@example.com or username">
                             </div>
                             
                             <div class="mb-4">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" 
-                                       required placeholder="••••••••">
+                    <input type="password" class="form-control" id="password" name="password" 
+                        required>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 mb-3">

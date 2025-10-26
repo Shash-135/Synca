@@ -2,6 +2,8 @@
 
 {% block title %}Home - Synca{% endblock %}
 
+{% block meta_description %}Browse verified PGs and hostels across top neighborhoods, filter by amenities, and book the perfect stay with Synca in just a few clicks.{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
@@ -18,8 +20,8 @@
             <form method="GET" action="{% url 'home' %}">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">Area</label>
-                        <select name="area" class="form-select">
+                        <label class="form-label" for="filter-area">Area</label>
+                        <select id="filter-area" name="area" class="form-select">
                             <option value="">All Areas</option>
                             {% for area in areas %}
                             <option value="{{ area }}" {% if request.GET.area == area %}selected{% endif %}>
@@ -30,8 +32,8 @@
                     </div>
                     
                     <div class="col-md-3">
-                        <label class="form-label">Room Type</label>
-                        <select name="room_type" class="form-select">
+                        <label class="form-label" for="filter-room-type">Room Type</label>
+                        <select id="filter-room-type" name="room_type" class="form-select">
                             <option value="">All Types</option>
                             {% for value, label in room_type_choices %}
                             <option value="{{ value }}" {% if selected_room_type == value %}selected{% endif %}>{{ label }}</option>
@@ -40,14 +42,14 @@
                     </div>
                     
                     <div class="col-md-3">
-                        <label class="form-label">Max Price</label>
-                        <input type="number" name="max_price" class="form-control" 
-                               placeholder="Max price" value="{{ request.GET.max_price }}">
+                        <label class="form-label" for="filter-max-price">Max Price</label>
+               <input id="filter-max-price" type="number" name="max_price" class="form-control" 
+                   placeholder="e.g., 15000" value="{{ request.GET.max_price }}">
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label">PG Type</label>
-                        <select name="pg_type" class="form-select">
+                        <label class="form-label" for="filter-pg-type">PG Type</label>
+                        <select id="filter-pg-type" name="pg_type" class="form-select">
                             <option value="">All Types</option>
                             {% for value, label in pg_type_choices %}
                             <option value="{{ value }}" {% if selected_pg_type == value %}selected{% endif %}>{{ label }}</option>
@@ -69,6 +71,7 @@
 <!-- Features Section -->
 <section class="py-5">
     <div class="container">
+        <h2 class="text-center mb-5 h3">Why choose Synca</h2>
         <div class="row text-center g-4">
             <div class="col-md-4">
                 <div class="feature-icon">
@@ -122,18 +125,18 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card pg-card border-0 shadow-sm h-100">
                     <div class="overflow-hidden">
-                        {% if pg.image %}
-                        <img src="{{ pg.image.url }}" class="card-img-top" alt="{{ pg.pg_name }}">
-                        {% else %}
-                        <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
-                             class="card-img-top" alt="{{ pg.pg_name }}">
-                        {% endif %}
+                    {% if pg.image %}
+                    <img src="{{ pg.image.url }}" class="card-img-top" alt="{{ pg.pg_name }}" loading="lazy" decoding="async">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
+                        class="card-img-top" alt="{{ pg.pg_name }} placeholder image" loading="lazy" decoding="async">
+                    {% endif %}
                     </div>
                     
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <h5 class="card-title mb-1">{{ pg.pg_name }}</h5>
+                                <h3 class="card-title fs-5 mb-1">{{ pg.pg_name }}</h3>
                                 <p class="text-muted small mb-0">
                                     <i class="bi bi-geo-alt"></i> {{ pg.area }}
                                 </p>
