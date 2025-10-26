@@ -11,11 +11,11 @@ from ..services.pg import PGDetailService, PGCatalogService
 
 
 class SplashView(TemplateView):
-    template_name = "splash.html"
+    template_name = "public/splash.html"
 
 
 class HomeView(TemplateView):
-    template_name = "home.html"
+    template_name = "public/home.html"
     catalog_service_class = PGCatalogService
 
     def get_catalog_service(self) -> PGCatalogService:
@@ -44,15 +44,15 @@ class HomeView(TemplateView):
 
 
 class AboutView(TemplateView):
-    template_name = "about.html"
+    template_name = "public/about.html"
 
 
 class ContactView(TemplateView):
-    template_name = "contact.html"
+    template_name = "public/contact.html"
 
 
 class LoginView(FormView):
-    template_name = "login.html"
+    template_name = "auth/login.html"
     form_class = AuthenticationForm
     success_url = reverse_lazy("home")
 
@@ -89,7 +89,7 @@ class LogoutView(RedirectView):
 
 
 class RegisterView(FormView):
-    template_name = "register.html"
+    template_name = "auth/register.html"
     form_class = RegisterForm
     success_url = reverse_lazy("login")
 
@@ -104,7 +104,7 @@ class RegisterView(FormView):
 
 
 class PGDetailView(DetailView):
-    template_name = "pg_detail.html"
+    template_name = "pg/detail.html"
     model = PG
     context_object_name = "pg"
     service_class = PGDetailService
