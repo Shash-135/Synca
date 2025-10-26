@@ -182,6 +182,48 @@
     </div>
     
     <!-- Reviews Section -->
+    <div class="mb-5">
+        <h2 class="mb-4">Share Your Experience</h2>
+        {% if user_can_review %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="h5 mb-3">{% if user_review %}Update{% else %}Write{% endif %} a review</h3>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Rating</label>
+                            {{ review_form.rating }}
+                            {% for error in review_form.rating.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Comment</label>
+                            {{ review_form.comment }}
+                            {% for error in review_form.comment.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% elif review_eligibility_reason %}
+        <div class="alert alert-info" role="status">
+            {{ review_eligibility_reason }}
+        </div>
+        {% else %}
+        <div class="alert alert-secondary" role="status">
+            Sign in as a student to share your experience.
+        </div>
+        {% endif %}
+    </div>
+
     {% if reviews %}
     <div>
         <h2 class="mb-4">Reviews</h2>
@@ -207,5 +249,50 @@
     {% endif %}
 </div>
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ratingInput = document.querySelector("#reviewForm input[name='rating']");
+    const stars = Array.from(document.querySelectorAll("#reviewForm .star"));
+    if (!ratingInput || stars.length === 0) {
+        return;
+    }
+
+    const highlight = (value) => {
+        stars.forEach((star, index) => {
+            const icon = star.querySelector("i");
+            if (!icon) return;
+            if (index < value) {
+                icon.classList.remove("bi-star", "text-muted");
+                icon.classList.add("bi-star-fill", "text-warning");
+            } else {
+                icon.classList.remove("bi-star-fill", "text-warning");
+                icon.classList.add("bi-star", "text-muted");
+            }
+        });
+    };
+
+    const initialValue = parseInt(ratingInput.value || "0", 10);
+    if (initialValue > 0) {
+        highlight(initialValue);
+    }
+
+    stars.forEach((star) => {
+        star.addEventListener("click", (event) => {
+            event.preventDefault();
+            const value = parseInt(star.dataset.value, 10);
+            ratingInput.value = value;
+            highlight(value);
+        });
+        star.addEventListener("mouseenter", () => {
+            highlight(parseInt(star.dataset.value, 10));
+        });
+        star.addEventListener("mouseleave", () => {
+            highlight(parseInt(ratingInput.value || "0", 10));
+        });
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
