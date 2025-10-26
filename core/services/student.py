@@ -10,9 +10,13 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
 
 from ..forms import BookingDatesForm, StudentBasicForm, StudentProfileForm
+<<<<<<< HEAD
 from ..models.booking import Booking
 from ..models.property import Bed
 from ..models.profile import StudentProfile
+=======
+from ..models import Bed, Booking, StudentProfile
+>>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 User = get_user_model()
 

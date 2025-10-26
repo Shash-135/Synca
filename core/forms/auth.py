@@ -1,6 +1,10 @@
 from django import forms
 
+<<<<<<< HEAD
 from ..models.user import User
+=======
+from ..models import User
+>>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 
 class RegisterForm(forms.ModelForm):

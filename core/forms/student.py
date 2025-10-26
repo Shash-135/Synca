@@ -1,8 +1,12 @@
 from django import forms
 
+<<<<<<< HEAD
 from ..models.booking import Booking
 from ..models.profile import StudentProfile
 from ..models.user import User
+=======
+from ..models import Booking, StudentProfile, User
+>>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 
 class StudentBasicForm(forms.ModelForm):

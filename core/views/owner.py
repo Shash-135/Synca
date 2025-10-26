@@ -1,224 +1,195 @@
-from datetime import timedelta
-
 from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
-from django.utils.text import slugify
-from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic import FormView, TemplateView
 
 from ..decorators import owner_required
-from ..forms import AMENITY_CHOICES, AddBedForm, AddRoomForm, OfflineBookingForm, PropertyForm
+from ..forms import AMENITY_CHOICES, OfflineBookingForm, PropertyForm
 from ..models import Booking, PG
+from ..services.owner import (
+    OfflineBookingService,
+    OwnerBookingActionService,
+    OwnerDashboardService,
+    OwnerInventoryService,
+)
 
-User = get_user_model()
 
+@method_decorator(owner_required, name="dispatch")
+class OwnerDashboardView(TemplateView):
+    template_name = "owner/dashboard.html"
+    service_class = OwnerDashboardService
 
-@owner_required
-def owner_dashboard_view(request):
-    pgs_qs = (
-        PG.objects
-        .filter(owner=request.user)
-        .annotate(
-            room_count=Count('rooms', distinct=True),
-            total_beds=Count('rooms__beds', distinct=True),
-            occupied_beds=Count('rooms__beds', filter=Q(rooms__beds__is_available=False), distinct=True),
-            available_beds=Count('rooms__beds', filter=Q(rooms__beds__is_available=True), distinct=True),
+    def get_service(self) -> OwnerDashboardService:
+        inventory_service = OwnerInventoryService(self.request.user)
+        return self.service_class(self.request.user, inventory_service=inventory_service)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        service = self.get_service()
+        properties = service.properties()
+        context.update(
+            {
+                "pgs": properties,
+                "stats": service.stats(properties),
+                "bookings": service.bookings(),
+            }
         )
-        .prefetch_related('rooms__beds')
-    )
-    pgs = list(pgs_qs)
-
-    total_pgs = len(pgs)
-    total_beds = sum(pg.total_beds for pg in pgs)
-    occupied_beds = sum(pg.occupied_beds for pg in pgs)
-    occupancy_rate = round((occupied_beds / total_beds) * 100, 2) if total_beds else 0
-
-    bookings_qs = (
-        Booking.objects
-        .filter(bed__room__pg__owner=request.user)
-        .select_related('bed__room__pg', 'user')
-        .order_by('-booking_date')
-    )
-
-    status_badge_map = {
-        'active': 'bg-success-subtle text-success',
-        'upcoming': 'bg-primary-subtle text-primary',
-        'completed': 'bg-secondary-subtle text-secondary',
-        'cancelled': 'bg-secondary-subtle text-secondary',
-        'pending': 'bg-warning-subtle text-warning',
-    }
-
-    bookings = []
-    for booking in bookings_qs:
-        booking.refresh_status(persist=False)
-        booking.status_label = booking.get_status_display()
-        booking.status_badge_class = status_badge_map.get(booking.status, 'bg-light text-muted')
-        booking.card_state = 'booking-cancelled' if booking.status == 'cancelled' else ''
-        booking.can_approve = booking.status == 'pending'
-        booking.can_cancel = booking.status in {'pending', 'active', 'upcoming'}
-        bookings.append(booking)
-    for pg in pgs:
-        pg.room_form = AddRoomForm(pg=pg)
-        pg.bed_form = AddBedForm(pg=pg)
-
-    stats = {
-        'total_pgs': total_pgs,
-        'total_beds': total_beds,
-        'occupied_beds': occupied_beds,
-        'occupancy_rate': occupancy_rate,
-    }
-    context = {'pgs': pgs, 'stats': stats, 'bookings': bookings}
-    return render(request, 'owner_dashboard.html', context)
+        return context
 
 
-@owner_required
-def add_property_view(request):
-    if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, owner=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Property submitted successfully.")
-            return redirect('owner_dashboard')
-    else:
-        form = PropertyForm(owner=request.user)
+@method_decorator(owner_required, name="dispatch")
+class OwnerPropertyCreateView(FormView):
+    template_name = "owner/add_property.html"
+    form_class = PropertyForm
+    success_url = reverse_lazy("owner_dashboard")
 
-    context = {
-        'form': form,
-        'amenity_choices': AMENITY_CHOICES,
-    }
-    return render(request, 'add_property.html', context)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["owner"] = self.request.user
+        return kwargs
 
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Property submitted successfully.")
+        return super().form_valid(form)
 
-@require_POST
-@owner_required
-def owner_booking_decision_view(request, booking_id):
-    booking = get_object_or_404(Booking.objects.select_related('bed__room__pg', 'bed'), id=booking_id)
-    if booking.bed.room.pg.owner != request.user:
-        messages.error(request, "You can only manage bookings for your own properties.")
-        return redirect('owner_dashboard')
+    def form_invalid(self, form):
+        messages.error(self.request, "Please review the errors below.")
+        return super().form_invalid(form)
 
-    action = request.POST.get('action')
-    if action not in {'approve', 'cancel'}:
-        messages.error(request, "Invalid action requested.")
-        return redirect('owner_dashboard')
-
-    if action == 'approve':
-        if booking.status != 'pending':
-            messages.info(request, "This booking is no longer awaiting approval.")
-            return redirect('owner_dashboard')
-        booking.mark_active()
-        if booking.bed:
-            booking.bed.is_available = False
-            booking.bed.save(update_fields=['is_available'])
-        messages.success(request, "Booking approved and activated.")
-    else:  # cancel
-        if booking.status == 'cancelled':
-            messages.info(request, "This booking is already cancelled.")
-            return redirect('owner_dashboard')
-        booking.mark_cancelled()
-        if booking.bed:
-            booking.bed.is_available = True
-            booking.bed.save(update_fields=['is_available'])
-        messages.success(request, "Booking request cancelled.")
-
-    return redirect('owner_dashboard')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get("form")
+        if form is not None:
+            context["amenity_choices"] = form.fields["amenities"].choices
+        else:
+            context["amenity_choices"] = AMENITY_CHOICES
+        return context
 
 
-@require_POST
-@owner_required
-def owner_add_room_view(request, pg_id):
-    pg = get_object_or_404(PG, id=pg_id, owner=request.user)
-    form = AddRoomForm(request.POST, pg=pg)
-    if form.is_valid():
-        room = form.save()
-        messages.success(request, f"Room {room.room_number} added to {pg.pg_name}.")
-    else:
-        for error_list in form.errors.values():
-            for error in error_list:
-                messages.error(request, error)
-    return redirect('owner_dashboard')
+@method_decorator(owner_required, name="dispatch")
+class OwnerBookingDecisionView(View):
+    http_method_names = ["post"]
+    service_class = OwnerBookingActionService
+
+    def get_service(self) -> OwnerBookingActionService:
+        return self.service_class(self.request.user)
+
+    def post(self, request, booking_id):
+        booking = get_object_or_404(
+            Booking.objects.select_related("bed__room__pg", "bed"),
+            id=booking_id,
+        )
+        action = request.POST.get("action")
+        if action not in {"approve", "cancel"}:
+            messages.error(request, "Invalid action requested.")
+            return redirect("owner_dashboard")
+
+        service = self.get_service()
+        try:
+            outcome = service.approve(booking) if action == "approve" else service.cancel(booking)
+        except PermissionError:
+            messages.error(request, "You can only manage bookings for your own properties.")
+            return redirect("owner_dashboard")
+
+        notifier = getattr(messages, outcome.level, messages.info)
+        notifier(request, outcome.message)
+        return redirect("owner_dashboard")
 
 
-@require_POST
-@owner_required
-def owner_add_bed_view(request, pg_id):
-    pg = get_object_or_404(PG, id=pg_id, owner=request.user)
-    form = AddBedForm(request.POST, pg=pg)
-    if form.is_valid():
-        bed = form.save()
-        messages.success(request, f"Bed {bed.bed_identifier} added to Room {bed.room.room_number}.")
-    else:
-        for error_list in form.errors.values():
-            for error in error_list:
-                messages.error(request, error)
-    return redirect('owner_dashboard')
+@method_decorator(owner_required, name="dispatch")
+class OwnerRoomCreateView(View):
+    http_method_names = ["post"]
+
+    service_class = OwnerInventoryService
+
+    def get_service(self) -> OwnerInventoryService:
+        return self.service_class(self.request.user)
+
+    def post(self, request, pg_id):
+        pg = get_object_or_404(PG, id=pg_id, owner=request.user)
+        service = self.get_service()
+        success, form, room = service.create_room(pg, request.POST)
+        if success:
+            messages.success(request, f"Room {room.room_number} added to {pg.pg_name}.")
+        else:
+            for errors in form.errors.values():
+                for error in errors:
+                    messages.error(request, error)
+        return redirect("owner_dashboard")
 
 
-@owner_required
-def owner_add_offline_booking_view(request):
-    form = OfflineBookingForm(request.POST or None, owner=request.user)
+@method_decorator(owner_required, name="dispatch")
+class OwnerBedCreateView(View):
+    http_method_names = ["post"]
 
-    if request.method == 'POST':
-        if form.is_valid():
-            bed = form.cleaned_data['bed']
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            email = form.cleaned_data['email']
-            age = form.cleaned_data.get('age')
-            gender = form.cleaned_data.get('gender') or None
-            occupation = form.cleaned_data.get('occupation') or None
-            contact = form.cleaned_data.get('contact_number')
+    service_class = OwnerInventoryService
 
-            bed.refresh_from_db(fields=['is_available'])
-            if not bed.is_available:
-                messages.error(request, "Selected bed has already been booked.")
-                return redirect('owner_add_offline_booking')
+    def get_service(self) -> OwnerInventoryService:
+        return self.service_class(self.request.user)
 
-            occupant = User.objects.filter(email=email).first()
-            if occupant is None:
-                username_base = slugify(f"{first_name}{last_name}") or (email.split('@')[0] if email else 'tenant')
-                username = username_base
-                counter = 1
-                while User.objects.filter(username=username).exists():
-                    username = f"{username_base}{counter}"
-                    counter += 1
-                occupant = User(username=username, email=email or '')
-                occupant.user_type = 'student'
-                occupant.set_unusable_password()
+    def post(self, request, pg_id):
+        pg = get_object_or_404(PG, id=pg_id, owner=request.user)
+        service = self.get_service()
+        success, form, bed = service.create_bed(pg, request.POST)
+        if success:
+            messages.success(request, f"Bed {bed.bed_identifier} added to Room {bed.room.room_number}.")
+        else:
+            for errors in form.errors.values():
+                for error in errors:
+                    messages.error(request, error)
+        return redirect("owner_dashboard")
 
-            occupant.first_name = first_name
-            occupant.last_name = last_name
-            occupant.user_type = 'student'
-            occupant.age = age
-            occupant.gender = gender
-            occupant.occupation = occupation
-            occupant.contact_number = contact or ''
-            occupant.save()
 
-            today = timezone.now().date()
-            booking = Booking.objects.create(
-                user=occupant,
-                bed=bed,
-                booking_type='Offline',
-                status='active',
-                check_in=today,
-                check_out=today + timedelta(days=30)
-            )
-            bed.is_available = False
-            bed.save(update_fields=['is_available'])
+@method_decorator(owner_required, name="dispatch")
+class OwnerOfflineBookingView(FormView):
+    template_name = "owner/offline_booking.html"
+    form_class = OfflineBookingForm
+    success_url = reverse_lazy("owner_dashboard")
+    service_class = OfflineBookingService
 
-            messages.success(
-                request,
-                f"Offline booking created for {occupant.get_full_name() or occupant.username}."
-            )
-            return redirect('owner_dashboard')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["owner"] = self.request.user
+        return kwargs
 
-    has_available_beds = form.fields['bed'].queryset.exists()
+    def get_service(self) -> OfflineBookingService:
+        return self.service_class(self.request.user)
 
-    context = {
-        'form': form,
-        'has_available_beds': has_available_beds,
-    }
-    return render(request, 'owner_add_offline_booking.html', context)
+    def form_valid(self, form):
+        service = self.get_service()
+        bed = form.cleaned_data["bed"]
+        if not service.ensure_bed_available(bed):
+            form.add_error("bed", "Selected bed has already been booked.")
+            return self.form_invalid(form)
+
+        occupant = service.resolve_or_create_occupant(
+            first_name=form.cleaned_data["first_name"],
+            last_name=form.cleaned_data["last_name"],
+            email=form.cleaned_data["email"],
+            age=form.cleaned_data.get("age"),
+            gender=form.cleaned_data.get("gender") or None,
+            occupation=form.cleaned_data.get("occupation") or None,
+            contact=form.cleaned_data.get("contact_number"),
+        )
+        booking = service.create_booking(bed, occupant)
+        messages.success(
+            self.request,
+            f"Offline booking created for {booking.user.get_full_name() or booking.user.username}.",
+        )
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Unable to create offline booking. Please correct the errors below.")
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get("form")
+        if form is not None:
+            context["has_available_beds"] = form.fields["bed"].queryset.exists()
+        else:
+            context["has_available_beds"] = False
+        return context

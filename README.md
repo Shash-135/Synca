@@ -111,7 +111,7 @@ Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) and log in with a student
 ## Project Structure
 ```
 Synca/
-├─ core/                  # Domain models, views, forms, URLs
+├─ core/                  # Domain models, services, class-based views, forms, URLs
 ├─ templates/             # Django templates (layouts, pages, partials)
 ├─ static/                # CSS, JS, images
 ├─ media/                 # Uploaded assets (created at runtime)
@@ -135,6 +135,14 @@ python manage.py test
 - Python: follow PEP 8 (consider `black` + `isort`).
 - Templates/CSS: keep Bootstrap 5 utility classes, prefer mobile-first layout tweaks.
 - JavaScript: vanilla ES6; modularise reusable snippets under `static/js/`.
+
+### Service Layer Overview
+The Django app now organises complex orchestration logic into dedicated services under `core/services/`:
+- `pg.py` bundles catalog/detail builders for public pages.
+- `owner.py` delivers dashboard aggregates, inventory helpers (room/bed creation, booking approvals), and offline booking flows.
+- `student.py` centralises booking quotes, profile updates, history grouping, and mutation helpers.
+
+Each class-based view composes these services to keep controllers thin and reuse domain logic across features. When adding new functionality, prefer introducing a service first and then consuming it from the view.
 
 ### Useful Commands
 - `python manage.py dumpdata core.Booking --indent 2 > backup.json` to snapshot bookings.
