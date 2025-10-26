@@ -10,12 +10,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from ..forms import AddBedForm, AddRoomForm
-<<<<<<< HEAD
-from ..models.booking import Booking
-from ..models.property import Bed, PG
-=======
 from ..models import Bed, Booking, PG
->>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 User = get_user_model()
 

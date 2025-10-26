@@ -10,13 +10,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
 
 from ..forms import BookingDatesForm, StudentBasicForm, StudentProfileForm
-<<<<<<< HEAD
-from ..models.booking import Booking
-from ..models.property import Bed
-from ..models.profile import StudentProfile
-=======
 from ..models import Bed, Booking, StudentProfile
->>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 User = get_user_model()
 
@@ -27,6 +21,7 @@ class BookingQuote:
     security_deposit: Decimal
     total_amount: Decimal
     deposit_applicable: bool
+    lock_in_period: int | None
 
 
 class BookingRequestService:
@@ -40,12 +35,14 @@ class BookingRequestService:
         raw_deposit = bed.room.pg.deposit
         deposit_applicable = raw_deposit is not None
         security_deposit = raw_deposit if deposit_applicable else Decimal("0")
+        lock_in_period = bed.room.pg.lock_in_period or None
         total_amount = monthly_rent + security_deposit
         return BookingQuote(
             monthly_rent=monthly_rent,
             security_deposit=security_deposit,
             total_amount=total_amount,
             deposit_applicable=deposit_applicable,
+            lock_in_period=lock_in_period,
         )
 
     def create_booking(self, bed: Bed) -> Booking:

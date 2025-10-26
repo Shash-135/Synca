@@ -53,6 +53,7 @@ class BookingRequestView(TemplateView):
                 "security_deposit": quote.security_deposit,
                 "total_amount": quote.total_amount,
                 "deposit_applicable": quote.deposit_applicable,
+                "lock_in_period": quote.lock_in_period,
             }
         )
         return context
@@ -98,6 +99,7 @@ class BookingSuccessView(TemplateView):
                 "security_deposit": quote.security_deposit,
                 "total_amount": quote.total_amount,
                 "deposit_applicable": quote.deposit_applicable,
+                "lock_in_period": quote.lock_in_period,
                 "roommates": service.roommates(),
                 "awaiting_owner": service.awaiting_owner(),
             }

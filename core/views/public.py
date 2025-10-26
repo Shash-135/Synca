@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import DetailView, FormView, RedirectView, TemplateView
@@ -8,6 +9,7 @@ from django.views.generic import DetailView, FormView, RedirectView, TemplateVie
 from ..forms import RegisterForm
 from ..models import PG, Room
 from ..services.pg import PGDetailService, PGCatalogService
+from ..services.review import ReviewService
 
 
 class SplashView(TemplateView):
@@ -109,8 +111,62 @@ class PGDetailView(DetailView):
     context_object_name = "pg"
     service_class = PGDetailService
 
+    def get_review_service(self) -> ReviewService:
+        return ReviewService(self.request.user)
+
     def get_context_data(self, **kwargs):
+        review_form = kwargs.pop("review_form", None)
+        user_review = kwargs.pop("user_review", None)
+        review_eligibility = kwargs.pop("review_eligibility", None)
+
         context = super().get_context_data(**kwargs)
         service = self.service_class(self.object)
         context.update(service.build_context())
+
+        review_service = self.get_review_service()
+        if review_eligibility is None:
+            review_eligibility = review_service.eligibility(self.object)
+        if user_review is None:
+            user_review = review_service.user_review(self.object)
+
+        if review_eligibility.can_review:
+            review_form = review_form or review_service.form(self.object)
+        else:
+            review_form = None
+
+        context.update(
+            {
+                "review_form": review_form,
+                "user_review": user_review,
+                "user_can_review": review_eligibility.can_review,
+                "review_eligibility_reason": review_eligibility.reason,
+            }
+        )
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        review_service = self.get_review_service()
+        existing_review = review_service.user_review(self.object)
+        success, form, review, eligibility = review_service.save(self.object, request.POST)
+
+        if success:
+            if existing_review:
+                messages.success(request, "Your review has been updated.")
+            else:
+                messages.success(request, "Thanks for reviewing this property!")
+            return redirect(request.path)
+
+        if not eligibility.can_review:
+            if eligibility.reason:
+                messages.error(request, eligibility.reason)
+            else:
+                messages.error(request, "You are not allowed to review this property.")
+            return redirect(request.path)
+
+        context = self.get_context_data(
+            review_form=form,
+            user_review=existing_review,
+            review_eligibility=eligibility,
+        )
+        return self.render_to_response(context)

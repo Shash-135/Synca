@@ -66,6 +66,15 @@
                             </dd>
                             {% endif %}
 
+                            <dt class="col-5 text-muted">Lock-in Period</dt>
+                            <dd class="col-7">
+                                {% if lock_in_period %}
+                                {{ lock_in_period }} month{{ lock_in_period|pluralize }} minimum stay
+                                {% else %}
+                                No lock-in period
+                                {% endif %}
+                            </dd>
+
                             <dt class="col-5 text-muted">Total Amount</dt>
                             <dd class="col-7">
                                 <strong><i class="bi bi-currency-rupee"></i>{{ total_amount|floatformat:0 }}</strong>
@@ -79,6 +88,7 @@
                     {% if awaiting_owner %}
                     <div class="alert alert-warning text-start" role="status">
                         <strong>Heads up:</strong> the owner still needs to approve this booking. We'll email you as soon as they respond, and you can always track the status on the <a href="{% url 'student_bookings' %}" class="alert-link">My Bookings</a> page.
+                        {% if lock_in_period %}<div class="mt-2 mb-0">Minimum stay commitment: {{ lock_in_period }} month{{ lock_in_period|pluralize }}.</div>{% endif %}
                     </div>
                     {% endif %}
 
@@ -116,6 +126,11 @@
                             View Property
                         </a>
                     </div>
+                    {% if lock_in_period %}
+                    <div class="text-muted small mt-3">
+                        Remember: this booking includes a {{ lock_in_period }} month{{ lock_in_period|pluralize }} lock-in.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="text-center text-muted small mt-4">

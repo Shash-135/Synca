@@ -6,12 +6,21 @@ export function initSplashScreen() {
 
   const redirectUrl = splashContainer.dataset.redirectUrl || '/home/';
 
-  window.setTimeout(() => {
+  const triggerTransition = () => {
+    if (window.__splashHandled) {
+      return;
+    }
+
+    window.__splashHandled = true;
     splashContainer.classList.add('fade-out');
     window.setTimeout(() => {
       window.location.href = redirectUrl;
     }, 500);
-  }, 3000);
+  };
+
+  window.setTimeout(triggerTransition, 3000);
+  window.addEventListener('keydown', triggerTransition, { once: true });
+  window.addEventListener('click', triggerTransition, { once: true });
 }
 
 export default initSplashScreen;

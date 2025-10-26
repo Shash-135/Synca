@@ -1,11 +1,6 @@
 from django import forms
 
-<<<<<<< HEAD
-from ..models.property import Bed, PG, Room
-from ..models.user import User
-=======
 from ..models import Bed, PG, Room, User
->>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 AMENITY_CHOICES = [
     ("WiFi", "WiFi"),

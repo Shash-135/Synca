@@ -6,12 +6,7 @@ from typing import Iterable
 
 from django.db.models import Avg, Count, Min, Prefetch, Q
 
-<<<<<<< HEAD
-from ..models.booking import Booking
-from ..models.property import Bed, PG, Room
-=======
 from ..models import Bed, Booking, PG, Room
->>>>>>> 302367afdaf4f58d43b2fa3059b039e751452676
 
 
 @dataclass(frozen=True)
@@ -144,4 +139,6 @@ class PGDetailService:
             "average_rating": self.calculate_average_rating(reviews),
             "amenities_list": self.get_amenities(),
             "rooms": rooms,
+            "lock_in_period": self.pg.lock_in_period,
+            "deposit": self.pg.deposit,
         }
