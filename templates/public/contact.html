@@ -44,22 +44,25 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4 p-md-5">
                         <h2 class="mb-4">Send us a Message</h2>
-                        <form method="post">
+                        <form method="post" class="needs-validation" novalidate id="contactForm">
                             {% csrf_token %}
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Full name as per ID" required>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Full name as per ID" required minlength="2" autocomplete="name">
+                                    <div class="invalid-feedback">Please provide your full name.</div>
                                 </div>
                                 
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" required>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" required autocomplete="email">
+                                    <div class="invalid-feedback">Enter a valid email address.</div>
                                 </div>
                                 
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 98765 43210">
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 98765 43210" pattern="^\+?\d{7,15}$" inputmode="tel">
+                                    <div class="invalid-feedback">Use digits only, optionally prefixed with +, min 7 and max 15 digits.</div>
                                 </div>
                                 
                                 <div class="col-md-6">
@@ -72,11 +75,13 @@
                                         <option value="technical">Technical Issue</option>
                                         <option value="other">Other</option>
                                     </select>
+                                    <div class="invalid-feedback">Please choose a subject.</div>
                                 </div>
                                 
                                 <div class="col-12">
                                     <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="message" name="message" rows="6" placeholder="Tell us how we can help you..." required></textarea>
+                                    <textarea class="form-control" id="message" name="message" rows="6" placeholder="Tell us how we can help you..." required minlength="20"></textarea>
+                                    <div class="invalid-feedback">Please include at least 20 characters.</div>
                                 </div>
                                 
                                 <div class="col-12">

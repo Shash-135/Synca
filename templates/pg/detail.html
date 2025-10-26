@@ -213,7 +213,7 @@
             <div class="card-body">
                 <h3 class="h5 mb-3">{% if user_review %}Update{% else %}Write{% endif %} a review</h3>
                 {% if review_form %}
-                <form method="post" action="" id="reviewForm" novalidate>
+                <form method="post" action="" id="reviewForm" class="needs-validation" novalidate>
                     {% csrf_token %}
                     {% if review_form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">
@@ -233,6 +233,7 @@
                                 </button>
                                 {% endfor %}
                             </div>
+                            <div class="text-danger small mt-2 d-none" id="ratingError">Please select a rating.</div>
                             {% if review_form.rating.errors %}
                             <div class="text-danger small mt-2">
                                 {% for error in review_form.rating.errors %}
@@ -244,6 +245,7 @@
                         <div class="col-12 col-lg-9">
                             <label class="form-label mb-2">Comment</label>
                             {{ review_form.comment }}
+                            <div class="invalid-feedback">Please share at least 20 characters.</div>
                             {% if review_form.comment.errors %}
                             <div class="text-danger small mt-2">
                                 {% for error in review_form.comment.errors %}
@@ -302,20 +304,47 @@
 {{ block.super }}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const ratingInput = document.querySelector("#reviewForm input[name='rating']");
-    const stars = Array.from(document.querySelectorAll("#reviewForm .star"));
-    if (!ratingInput || stars.length === 0) {
+    const reviewForm = document.getElementById("reviewForm");
+    if (!reviewForm) {
         return;
     }
 
+    const ratingInput = reviewForm.querySelector("input[name='rating']");
+    const commentField = reviewForm.querySelector("textarea[name='comment']");
+    const ratingError = document.getElementById("ratingError");
+    const stars = Array.from(reviewForm.querySelectorAll(".star"));
+
+    const hideRatingError = () => {
+        if (ratingError) {
+            ratingError.classList.add("d-none");
+        }
+        if (ratingInput) {
+            ratingInput.setCustomValidity("");
+        }
+    };
+
+    const showRatingError = () => {
+        if (ratingError) {
+            ratingError.classList.remove("d-none");
+        }
+        if (ratingInput) {
+            ratingInput.setCustomValidity("Please select a rating.");
+        }
+    };
+
     const highlight = (value) => {
+        if (!stars.length) {
+            return;
+        }
         let numericValue = parseInt(value, 10);
         if (isNaN(numericValue)) {
             numericValue = 0;
         }
         stars.forEach((star, index) => {
             const icon = star.querySelector("i");
-            if (!icon) return;
+            if (!icon) {
+                return;
+            }
             const starValue = index + 1;
             star.setAttribute("aria-checked", starValue === numericValue ? "true" : "false");
             if (starValue <= numericValue) {
@@ -328,24 +357,65 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
-    const initialValue = parseInt(ratingInput.value || "0", 10);
-    if (initialValue > 0) {
-        highlight(initialValue);
+    if (ratingInput && stars.length) {
+        const initialValue = parseInt(ratingInput.value || "0", 10);
+        if (initialValue > 0) {
+            highlight(initialValue);
+        }
+
+        stars.forEach((star) => {
+            star.addEventListener("click", (event) => {
+                event.preventDefault();
+                const value = parseInt(star.dataset.value, 10);
+                ratingInput.value = value;
+                highlight(value);
+                hideRatingError();
+            });
+            star.addEventListener("mouseenter", () => {
+                highlight(parseInt(star.dataset.value, 10));
+            });
+            star.addEventListener("mouseleave", () => {
+                highlight(parseInt(ratingInput.value || "0", 10));
+            });
+        });
     }
 
-    stars.forEach((star) => {
-        star.addEventListener("click", (event) => {
+    if (commentField) {
+        commentField.addEventListener("input", () => {
+            commentField.setCustomValidity("");
+        });
+    }
+
+    reviewForm.addEventListener("submit", (event) => {
+        let valid = true;
+
+        if (ratingInput && (!ratingInput.value || parseInt(ratingInput.value, 10) < 1)) {
+            showRatingError();
+            valid = false;
+        } else {
+            hideRatingError();
+        }
+
+        if (commentField) {
+            const trimmed = commentField.value.trim();
+            if (trimmed.length < 20) {
+                commentField.setCustomValidity("Please share at least 20 characters.");
+                valid = false;
+            } else {
+                commentField.setCustomValidity("");
+            }
+        }
+
+        if (!reviewForm.checkValidity()) {
+            valid = false;
+        }
+
+        if (!valid) {
             event.preventDefault();
-            const value = parseInt(star.dataset.value, 10);
-            ratingInput.value = value;
-            highlight(value);
-        });
-        star.addEventListener("mouseenter", () => {
-            highlight(parseInt(star.dataset.value, 10));
-        });
-        star.addEventListener("mouseleave", () => {
-            highlight(parseInt(ratingInput.value || "0", 10));
-        });
+            event.stopPropagation();
+        }
+
+        reviewForm.classList.add("was-validated");
     });
 });
 </script>

@@ -2,6 +2,26 @@ import { initAlertBridge } from './modules/alerts.js';
 
 const moduleRegistry = [
   {
+    condition: () => document.querySelector('form.needs-validation'),
+    loader: () =>
+      import('./modules/formValidation.js').then((module) => {
+        const init = module.initFormValidation || module.default;
+        if (typeof init === 'function') {
+          init();
+        }
+      }),
+  },
+  {
+    condition: () => document.getElementById('loginForm'),
+    loader: () =>
+      import('./modules/login.js').then((module) => {
+        const init = module.initLoginFormValidation || module.default;
+        if (typeof init === 'function') {
+          init();
+        }
+      }),
+  },
+  {
     condition: () => document.getElementById('occupation-field'),
     loader: () =>
       import('./modules/register.js').then((module) => {
