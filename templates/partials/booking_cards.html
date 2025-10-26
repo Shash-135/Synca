@@ -95,6 +95,12 @@
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-outline-danger btn-sm">Cancel Booking</button>
                                 </form>
+                                {% elif booking.status == 'pending' %}
+                                <span class="badge bg-warning-subtle text-warning align-self-center">Awaiting owner approval</span>
+                                <form method="post" action="{% url 'student_booking_cancel' booking.id %}" class="d-inline" onsubmit="return confirm('Cancel this booking request?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Cancel Request</button>
+                                </form>
                                 {% elif booking.status == 'completed' %}
                                 <span class="badge bg-success-subtle text-success align-self-center">Completed stay</span>
                                 {% elif booking.status == 'cancelled' %}

@@ -4,16 +4,19 @@
 
 {% block title %}Register - Synca{% endblock %}
 
+{% block meta_description %}Create your Synca account to explore verified PG listings, reserve beds, and manage your stay preferences in one streamlined dashboard.{% endblock %}
+
 {% block content %}
 <div class="hero-section">
     <div class="container">
+        <h1 class="visually-hidden">Create your Synca account</h1>
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
                 <div class="card border-0 shadow">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
-                               <img src="{% static 'images/logo.png' %}" alt="Synca Logo" style="height: 40px;">
+                               <img src="{% static 'images/logo.png' %}" alt="Synca Logo" style="height: 40px;" loading="lazy">
                                 <div class="text-start">
                                     <h2 class="mb-0">Synca</h2>
                                     <p class="small text-muted mb-0">Syncing up with the perfect place</p>
@@ -35,18 +38,18 @@
                             
                             <div class="mb-3">
                                 <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" 
-                                       required placeholder="John" value="{{ form.first_name.value|default_if_none:'' }}">
+                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                        required placeholder="First name as per ID" value="{{ form.first_name.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" 
-                                       required placeholder="Doe" value="{{ form.last_name.value|default_if_none:'' }}">
+                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                        required placeholder="Last name as per ID" value="{{ form.last_name.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="age" class="form-label">Age</label>
-                                <input type="number" class="form-control" id="age" name="age" min="0"
-                                       required placeholder="Your Age" value="{{ form.age.value|default_if_none:'' }}">
+                    <input type="number" class="form-control" id="age" name="age" min="0"
+                        required value="{{ form.age.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="gender" class="form-label">Gender</label>
@@ -60,28 +63,28 @@
                             </div>
                             <div class="mb-3">
                                 <label for="contact_number" class="form-label">Contact Number</label>
-                                <input type="text" class="form-control" id="contact_number" name="contact_number"
-                                       required placeholder="e.g. 9876543210" value="{{ form.contact_number.value|default_if_none:'' }}">
+                    <input type="text" class="form-control" id="contact_number" name="contact_number"
+                        required placeholder="e.g., 9876543210" value="{{ form.contact_number.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" 
-                                       required placeholder="your.email@example.com" value="{{ form.email.value|default_if_none:'' }}">
+                    <input type="email" class="form-control" id="email" name="email" 
+                        required placeholder="your.email@example.com" value="{{ form.email.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" 
-                                       required placeholder="johndoe" value="{{ form.username.value|default_if_none:'' }}">
+                    <input type="text" class="form-control" id="username" name="username" 
+                        required placeholder="Choose a unique username" value="{{ form.username.value|default_if_none:'' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="password1" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password1" name="password1" 
-                                       required placeholder="••••••••">
+                    <input type="password" class="form-control" id="password1" name="password1" 
+                        required>
                             </div>
                             <div class="mb-3">
                                 <label for="password2" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="password2" name="password2" 
-                                       required placeholder="••••••••">
+                    <input type="password" class="form-control" id="password2" name="password2" 
+                        required>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">I am a</label>

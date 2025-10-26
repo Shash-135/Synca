@@ -2,6 +2,34 @@
 
 {% block title %}{{ pg.pg_name }} - Synca{% endblock %}
 
+{% block meta_description %}Explore {{ pg.pg_name }} in {{ pg.area }}. Check amenities, pricing, and room availability before booking your next PG stay through Synca.{% endblock %}
+
+{% block extra_meta %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LodgingBusiness",
+        "name": "{{ pg.pg_name|escapejs }}",
+        "description": "{{ pg.description|default:'Comfortable shared accommodation'|truncatewords:25|escapejs }}",
+        "url": "{{ request.build_absolute_uri }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ pg.address|escapejs }}",
+            "addressLocality": "{{ pg.area|escapejs }}",
+            "addressCountry": "India"
+        },
+        "amenityFeature": [
+            {% for amenity in amenities_list %}
+            {
+                "@type": "LocationFeatureSpecification",
+                "name": "{{ amenity|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+    </script>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4" id="pgDetail"
     data-login-url="{% url 'login' %}?next={{ request.get_full_path|urlencode }}"
@@ -14,12 +42,12 @@
     <div class="row mb-5">
         <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="rounded overflow-hidden" style="height: 400px;">
-                {% if pg.image %}
-                <img src="{{ pg.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
-                {% else %}
-                <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
-                     class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }}">
-                {% endif %}
+             {% if pg.image %}
+             <img src="{{ pg.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }} exterior" loading="lazy" decoding="async">
+             {% else %}
+             <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
+                 class="w-100 h-100 object-fit-cover" alt="Illustrative accommodation for {{ pg.pg_name }}" loading="lazy" decoding="async">
+             {% endif %}
             </div>
         </div>
         
@@ -41,7 +69,7 @@
             <hr class="my-4">
             
             <div>
-                <h3 class="h5 mb-3">Amenities</h3>
+                <h2 class="h5 mb-3">Amenities</h2>
                 <div class="d-flex flex-wrap gap-2">
                     {% for amenity in amenities_list %}
                     <span class="badge bg-secondary px-3 py-2">{{ amenity }}</span>
@@ -111,6 +139,10 @@
                                     <div class="small text-muted mt-2">
                                         <strong>{{ bed.current_occupant.get_full_name|default:bed.current_occupant.username }}</strong><br>
                                         Age: {{ bed.current_occupant.age|default:"—" }} · {{ bed.current_occupant.get_occupation_display|default:bed.current_occupant.occupation|default:"—" }}
+                                    </div>
+                                    {% elif bed.pending_booking %}
+                                    <div class="small text-warning mt-2">
+                                        Awaiting owner approval for recent booking request.
                                     </div>
                                     {% elif bed.current_booking %}
                                     <div class="small text-muted mt-2">Occupant assigned offline</div>

@@ -79,6 +79,7 @@ class Bed(models.Model):
 class Booking(models.Model):
     BOOKING_TYPE_CHOICES = (('Online', 'Online'), ('Offline', 'Offline'))
     STATUS_CHOICES = (
+        ('pending', 'Pending Owner Approval'),
         ('upcoming', 'Upcoming'),
         ('active', 'Active'),
         ('completed', 'Completed'),
@@ -100,6 +101,8 @@ class Booking(models.Model):
         return f"Booking for {self.bed} by {user_email}"
 
     def mark_active(self):
+        if self.status == 'cancelled':
+            return
         today = timezone.now().date()
         self.status = 'active'
         if not self.check_in:
@@ -113,8 +116,14 @@ class Booking(models.Model):
         self.cancelled_at = timezone.now()
         self.save(update_fields=['status', 'cancelled_at'])
 
-    def calculate_status(self, today=None):
+    def mark_pending(self):
         if self.status == 'cancelled':
+            return
+        self.status = 'pending'
+        self.save(update_fields=['status'])
+
+    def calculate_status(self, today=None):
+        if self.status in {'cancelled', 'pending'}:
             return self.status
         today = today or timezone.now().date()
         if self.check_in and self.check_in > today:

@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <img src="{% static 'images/logo.png' %}" alt="Logo" width="40" height="40" class="me-2">
+                <img src="{% static 'images/logo.png' %}" alt="Synca logo" width="40" height="40" class="me-2" loading="lazy" decoding="async">
                 <!-- <i class="bi bi-building me-2 text-primary"></i> -->
                 <div>
                     <div class="fw-bold">Synca</div>
@@ -12,8 +12,10 @@
                 </div>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="toggler-bar top"></span>
+                <span class="toggler-bar middle"></span>
+                <span class="toggler-bar bottom"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
