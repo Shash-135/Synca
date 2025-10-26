@@ -18,7 +18,7 @@ from ..services.owner import (
 
 @method_decorator(owner_required, name="dispatch")
 class OwnerDashboardView(TemplateView):
-    template_name = "owner_dashboard.html"
+    template_name = "owner/dashboard.html"
     service_class = OwnerDashboardService
 
     def get_service(self) -> OwnerDashboardService:
@@ -41,7 +41,7 @@ class OwnerDashboardView(TemplateView):
 
 @method_decorator(owner_required, name="dispatch")
 class OwnerPropertyCreateView(FormView):
-    template_name = "add_property.html"
+    template_name = "owner/add_property.html"
     form_class = PropertyForm
     success_url = reverse_lazy("owner_dashboard")
 
@@ -61,7 +61,11 @@ class OwnerPropertyCreateView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["amenity_choices"] = AMENITY_CHOICES
+        form = context.get("form")
+        if form is not None:
+            context["amenity_choices"] = form.fields["amenities"].choices
+        else:
+            context["amenity_choices"] = AMENITY_CHOICES
         return context
 
 
@@ -141,7 +145,7 @@ class OwnerBedCreateView(View):
 
 @method_decorator(owner_required, name="dispatch")
 class OwnerOfflineBookingView(FormView):
-    template_name = "owner_add_offline_booking.html"
+    template_name = "owner/offline_booking.html"
     form_class = OfflineBookingForm
     success_url = reverse_lazy("owner_dashboard")
     service_class = OfflineBookingService

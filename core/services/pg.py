@@ -44,7 +44,8 @@ class PGCatalogService:
     def get_catalog(self, filters: PGFilters):
         """Apply filters and return the PG catalog queryset."""
         queryset = self.base_queryset.annotate(
-            min_price=Min("rooms__price_per_bed")
+            min_price=Min("rooms__price_per_bed"),
+            average_rating=Avg("reviews__rating"),
         ).prefetch_related("rooms")
 
         if filters.area:

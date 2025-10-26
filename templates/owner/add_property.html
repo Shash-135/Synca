@@ -42,7 +42,7 @@
                                 <div class="col-md-8">
                                     <label for="id_pg_name" class="form-label">PG/Hostel Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control{% if form.pg_name.errors %} is-invalid{% endif %}" id="id_pg_name" name="pg_name"
-                                           required placeholder="e.g., Sunshine PG" value="{{ form.pg_name.value|default:'' }}">
+                                               required placeholder="e.g., Sunshine PG" value="{{ form.pg_name.value|default:'' }}">
                                     {% if form.pg_name.errors %}
                                         <div class="invalid-feedback">{{ form.pg_name.errors|join:', ' }}</div>
                                     {% endif %}
@@ -51,7 +51,7 @@
                                 <div class="col-md-4">
                                     <label for="id_area" class="form-label">Area <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control{% if form.area.errors %} is-invalid{% endif %}" id="id_area" name="area"
-                                           required placeholder="e.g., Koramangala" value="{{ form.area.value|default:'' }}">
+                                               required placeholder="e.g., Koramangala" value="{{ form.area.value|default:'' }}">
                                     {% if form.area.errors %}
                                         <div class="invalid-feedback">{{ form.area.errors|join:', ' }}</div>
                                     {% endif %}
@@ -68,7 +68,7 @@
                                 <div class="col-md-6">
                                     <label for="id_city" class="form-label">City <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control{% if form.city.errors %} is-invalid{% endif %}" id="id_city" name="city"
-                                           required placeholder="e.g., Bangalore" value="{{ form.city.value|default:'' }}">
+                                               required placeholder="e.g., Bangalore" value="{{ form.city.value|default:'' }}">
                                     {% if form.city.errors %}
                                         <div class="invalid-feedback">{{ form.city.errors|join:', ' }}</div>
                                     {% endif %}
@@ -77,7 +77,7 @@
                                 <div class="col-md-6">
                                     <label for="id_pincode" class="form-label">PIN Code <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control{% if form.pincode.errors %} is-invalid{% endif %}" id="id_pincode" name="pincode"
-                                           required pattern="[0-9]{6}" placeholder="e.g., 560034" value="{{ form.pincode.value|default:'' }}">
+                                               required pattern="[0-9]{6}" placeholder="e.g., 560034" value="{{ form.pincode.value|default:'' }}">
                                     {% if form.pincode.errors %}
                                         <div class="invalid-feedback">{{ form.pincode.errors|join:', ' }}</div>
                                     {% endif %}
@@ -105,8 +105,8 @@
 
                                 <div class="col-md-3">
                                     <label for="id_deposit" class="form-label">Deposit Amount</label>
-                                    <input type="number" class="form-control{% if form.deposit.errors %} is-invalid{% endif %}" id="id_deposit" name="deposit" step="0.01" min="0"
-                                           placeholder="e.g., 5000" value="{{ form.deposit.value|default:'' }}">
+                     <input type="number" class="form-control{% if form.deposit.errors %} is-invalid{% endif %}" id="id_deposit" name="deposit" step="0.01" min="0"
+                         placeholder="e.g., 5000" value="{{ form.deposit.value|default:'' }}">
                                     {% if form.deposit.errors %}
                                         <div class="invalid-feedback">{{ form.deposit.errors|join:', ' }}</div>
                                     {% endif %}
@@ -114,8 +114,8 @@
 
                                 <div class="col-md-3">
                                     <label for="id_lock_in_period" class="form-label">Lock-in Period (months)</label>
-                                    <input type="number" class="form-control{% if form.lock_in_period.errors %} is-invalid{% endif %}" id="id_lock_in_period" name="lock_in_period" min="0"
-                                           placeholder="e.g., 3" value="{{ form.lock_in_period.value|default:'' }}">
+                     <input type="number" class="form-control{% if form.lock_in_period.errors %} is-invalid{% endif %}" id="id_lock_in_period" name="lock_in_period" min="0"
+                         placeholder="e.g., 3" value="{{ form.lock_in_period.value|default:'' }}">
                                     {% if form.lock_in_period.errors %}
                                         <div class="invalid-feedback">{{ form.lock_in_period.errors|join:', ' }}</div>
                                     {% endif %}

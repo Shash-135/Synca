@@ -32,7 +32,7 @@ __all__ = [
 
 @method_decorator(student_required, name="dispatch")
 class BookingRequestView(TemplateView):
-    template_name = "booking.html"
+    template_name = "booking/request.html"
     service_class = BookingRequestService
 
     def dispatch(self, request, *args, **kwargs):
@@ -70,7 +70,7 @@ class BookingRequestView(TemplateView):
 
 
 class BookingSuccessView(TemplateView):
-    template_name = "booking_success.html"
+    template_name = "booking/success.html"
     service_class = BookingSuccessService
 
     def dispatch(self, request, *args, **kwargs):
@@ -107,7 +107,7 @@ class BookingSuccessView(TemplateView):
 
 @method_decorator(student_required, name="dispatch")
 class StudentProfileView(TemplateView):
-    template_name = "student_profile.html"
+    template_name = "student/profile.html"
     service_class = StudentProfileService
 
     def dispatch(self, request, *args, **kwargs):
@@ -163,7 +163,7 @@ class StudentProfileView(TemplateView):
 
 @method_decorator(student_required, name="dispatch")
 class StudentBookingsView(TemplateView):
-    template_name = "my_bookings.html"
+    template_name = "student/bookings.html"
     service_class = StudentBookingsService
 
     def get_service(self) -> StudentBookingsService:
