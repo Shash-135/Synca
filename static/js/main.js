@@ -12,6 +12,16 @@ const moduleRegistry = [
       }),
   },
   {
+    condition: () => document.querySelector('.toggle-password'),
+    loader: () =>
+      import('./modules/passwordToggle.js').then((module) => {
+        const init = module.initPasswordToggles || module.default;
+        if (typeof init === 'function') {
+          init();
+        }
+      }),
+  },
+  {
     condition: () => document.getElementById('loginForm'),
     loader: () =>
       import('./modules/login.js').then((module) => {

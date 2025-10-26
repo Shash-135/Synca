@@ -84,14 +84,24 @@
                             </div>
                             <div class="mb-3">
                                 <label for="password1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password1" name="password1" 
-                        required minlength="8" autocomplete="new-password">
+                    <div class="input-group input-group-password">
+                        <input type="password" class="form-control" id="password1" name="password1" 
+                            required minlength="8" autocomplete="new-password">
+                        <button type="button" class="btn btn-light border toggle-password" data-target="#password1" aria-label="Show password">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     <div class="invalid-feedback">Password must contain at least 8 characters.</div>
                             </div>
                             <div class="mb-3">
                                 <label for="password2" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="password2" name="password2" 
-                        required minlength="8" autocomplete="new-password">
+                    <div class="input-group input-group-password">
+                        <input type="password" class="form-control" id="password2" name="password2" 
+                            required minlength="8" autocomplete="new-password">
+                        <button type="button" class="btn btn-light border toggle-password" data-target="#password2" aria-label="Show password">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     <div class="invalid-feedback">Passwords must match.</div>
                             </div>
                             <div class="mb-4">

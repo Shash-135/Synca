@@ -43,8 +43,13 @@
                             
                             <div class="mb-4">
                                 <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" 
-                        required minlength="6" autocomplete="current-password">
+                    <div class="input-group input-group-password">
+                        <input type="password" class="form-control" id="password" name="password" 
+                            required minlength="6" autocomplete="current-password">
+                        <button type="button" class="btn btn-light border toggle-password" data-target="#password" aria-label="Show password">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     <div class="invalid-feedback">Your password must be at least 6 characters long.</div>
                             </div>
                             
