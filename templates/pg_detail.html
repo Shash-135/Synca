@@ -112,6 +112,10 @@
                                         <strong>{{ bed.current_occupant.get_full_name|default:bed.current_occupant.username }}</strong><br>
                                         Age: {{ bed.current_occupant.age|default:"—" }} · {{ bed.current_occupant.get_occupation_display|default:bed.current_occupant.occupation|default:"—" }}
                                     </div>
+                                    {% elif bed.pending_booking %}
+                                    <div class="small text-warning mt-2">
+                                        Awaiting owner approval for recent booking request.
+                                    </div>
                                     {% elif bed.current_booking %}
                                     <div class="small text-muted mt-2">Occupant assigned offline</div>
                                     {% endif %}

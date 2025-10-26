@@ -43,14 +43,14 @@ def booking_view(request, bed_id):
             user=request.user,
             bed=bed,
             booking_type='Online',
-            status='active',
+            status='pending',
             check_in=today,
             check_out=today + timedelta(days=30),
         )
         bed.is_available = False
         bed.save(update_fields=['is_available'])
 
-        messages.success(request, "Booking confirmed! We'll notify the property owner.")
+        messages.success(request, "Booking request sent! The owner will review and respond soon.")
         return redirect('booking_success', booking_id=booking.id)
 
     context = {
@@ -83,10 +83,12 @@ def booking_success_view(request, booking_id):
     roommates = (
         Booking.objects
         .select_related('user', 'bed')
-        .filter(bed__room=booking.bed.room)
+        .filter(bed__room=booking.bed.room, status__in=['active', 'upcoming'])
         .exclude(id=booking.id)
         .order_by('bed__bed_identifier')
     )
+
+    awaiting_owner = booking.status == 'pending'
 
     context = {
         'booking': booking,
@@ -95,6 +97,7 @@ def booking_success_view(request, booking_id):
         'total_amount': total_amount,
         'deposit_applicable': deposit_applicable,
         'roommates': roommates,
+        'awaiting_owner': awaiting_owner,
     }
     return render(request, 'booking_success.html', context)
 
@@ -160,6 +163,7 @@ def student_profile_view(request):
         'upcoming': 'primary',
         'completed': 'secondary',
         'cancelled': 'danger',
+        'pending': 'warning',
     }
 
     for booking in recent_bookings:
@@ -192,6 +196,7 @@ def student_bookings_view(request):
     )
 
     badge_map = {
+        'pending': 'warning',
         'active': 'success',
         'upcoming': 'primary',
         'completed': 'secondary',
@@ -201,8 +206,8 @@ def student_bookings_view(request):
     placeholder_image = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
 
     bookings = []
-    bookings_by_status = {'active': [], 'upcoming': [], 'completed': [], 'cancelled': []}
-    status_counts = {'all': 0, 'active': 0, 'upcoming': 0, 'completed': 0, 'cancelled': 0}
+    bookings_by_status = {'pending': [], 'active': [], 'upcoming': [], 'completed': [], 'cancelled': []}
+    status_counts = {'all': 0, 'pending': 0, 'active': 0, 'upcoming': 0, 'completed': 0, 'cancelled': 0}
 
     for booking in bookings_qs:
         booking.refresh_status(persist=False)
@@ -290,5 +295,15 @@ def bed_toggle_api_view(request, bed_id):
 
     bed.is_available = payload['is_available']
     bed.save(update_fields=['is_available'])
+
+    if bed.is_available:
+        affected_bookings = (
+            Booking.objects
+            .select_related('user')
+            .filter(bed=bed, status__in=['active', 'upcoming', 'pending'])
+        )
+        for booking in affected_bookings:
+            if booking.status != 'cancelled':
+                booking.mark_cancelled()
 
     return JsonResponse({'success': True, 'is_available': bed.is_available})

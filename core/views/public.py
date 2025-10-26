@@ -124,8 +124,25 @@ def pg_detail_view(request, pg_id):
     for room in rooms:
         for bed in room.beds.all():
             bookings = list(bed.bookings.all())
-            bed.current_booking = bookings[0] if bookings else None
-            bed.current_occupant = bed.current_booking.user if bed.current_booking else None
+            active_booking = None
+            pending_booking = None
+            for booking in bookings:
+                booking.refresh_status(persist=False)
+                if booking.status == 'pending' and pending_booking is None:
+                    pending_booking = booking
+                if booking.status in {'active', 'upcoming'}:
+                    active_booking = booking
+                    break
+
+            if not bed.is_available and active_booking:
+                bed.current_booking = active_booking
+                bed.current_occupant = active_booking.user if active_booking.user else None
+            else:
+                bed.current_booking = None
+                bed.current_occupant = None
+
+            bed.pending_booking = pending_booking if pending_booking and bed.is_available is False else None
+
         room.roommate_beds = [bed for bed in room.beds.all() if getattr(bed, 'current_occupant', None)]
 
     reviews = pg.reviews.select_related('user').order_by('-created_at')

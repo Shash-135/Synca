@@ -8,16 +8,30 @@
         <div class="col-md-7 col-lg-6">
             <div class="card border-0 shadow">
                 <div class="card-body text-center p-5">
+                    {% if awaiting_owner %}
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 100px; height: 100px;">
+                        <i class="bi bi-hourglass-split text-warning" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <h2 class="mb-3">Booking Request Submitted!</h2>
+                    <p class="text-muted mb-4">
+                        Thanks, {{ user.get_full_name|default:user.username }}. Your booking request for
+                        <strong>{{ booking.bed.room.pg.pg_name }}</strong> has been sent to the owner.
+                        We will notify you once it is approved.
+                    </p>
+                    {% else %}
                     <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
                          style="width: 100px; height: 100px;">
                         <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
                     </div>
-                    
+
                     <h2 class="mb-3">Booking Confirmed!</h2>
                     <p class="text-muted mb-4">
                         Thank you, {{ user.get_full_name|default:user.username }}. Your booking for
                         <strong>{{ booking.bed.room.pg.pg_name }}</strong> is confirmed.
                     </p>
+                    {% endif %}
 
                     <div class="bg-light rounded p-4 mb-4 text-start">
                         <h3 class="h6 text-uppercase text-muted mb-3">Booking Summary</h3>
@@ -58,6 +72,12 @@
                             <dd class="col-7">{{ booking.booking_date|date:"M d, Y" }}</dd>
                         </dl>
                     </div>
+
+                    {% if awaiting_owner %}
+                    <div class="alert alert-warning text-start" role="status">
+                        <strong>Heads up:</strong> the owner still needs to approve this booking. We'll email you as soon as they respond, and you can always track the status on the <a href="{% url 'student_bookings' %}" class="alert-link">My Bookings</a> page.
+                    </div>
+                    {% endif %}
 
                     {% if roommates %}
                     <div class="bg-white border rounded p-4 mb-4 text-start">

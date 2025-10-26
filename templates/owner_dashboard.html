@@ -272,24 +272,48 @@
                                             {% endif %}
                                         </p>
                                         <p class="mb-0">Monthly Rent: <strong><i class="bi bi-currency-rupee"></i>{{ booking.bed.room.price_per_bed|floatformat:0 }}</strong></p>
+                                        {% if booking.status == 'pending' %}
+                                        <p class="text-warning small mt-2 mb-0">
+                                            <i class="bi bi-hourglass-split me-1"></i>
+                                            Awaiting your approval.
+                                        </p>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
-                                    <form method="post" action="{% url 'owner_update_booking' booking.id %}" class="d-grid gap-2">
+                                    <div class="d-grid gap-2">
+                                    {% if booking.can_approve %}
+                                    <form method="post" action="{% url 'owner_booking_decision' booking.id %}">
                                         {% csrf_token %}
-                                        <label for="booking-tenant-{{ booking.id }}" class="form-label small text-muted mb-1">Assign / Update Tenant</label>
-                                        <div class="input-group input-group-sm">
-                                            <select id="booking-tenant-{{ booking.id }}" name="user_id" class="form-select">
-                                                <option value="">Unassigned / Offline</option>
-                                                {% for student in students %}
-                                                <option value="{{ student.id }}" {% if booking.user and booking.user.id == student.id %}selected{% endif %}>
-                                                    {{ student.get_full_name|default:student.username }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                            <button type="submit" class="btn btn-outline-primary">Update</button>
-                                        </div>
+                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">
+                                            <i class="bi bi-check-circle me-1"></i> Approve
+                                        </button>
                                     </form>
+                                    {% endif %}
+                                    {% if booking.can_cancel %}
+                                        {% if booking.status == 'pending' %}
+                                    <form method="post" action="{% url 'owner_booking_decision' booking.id %}" onsubmit="return confirm('Cancel this booking request?');">
+                                            {% csrf_token %}
+                                        <button type="submit" name="action" value="cancel" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Cancel Request
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                    <form method="post" action="{% url 'owner_booking_decision' booking.id %}" onsubmit="return confirm('Cancel this booking?');">
+                                            {% csrf_token %}
+                                        <button type="submit" name="action" value="cancel" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Cancel Booking
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    {% elif booking.status == 'cancelled' %}
+                                    <div class="alert alert-warning mt-2 mb-0 py-2 px-3 small">
+                                        Cancelled bookings cannot be modified.
+                                    </div>
+                                    {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>

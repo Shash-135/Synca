@@ -47,6 +47,7 @@ def owner_dashboard_view(request):
         'upcoming': 'bg-primary-subtle text-primary',
         'completed': 'bg-secondary-subtle text-secondary',
         'cancelled': 'bg-secondary-subtle text-secondary',
+        'pending': 'bg-warning-subtle text-warning',
     }
 
     bookings = []
@@ -55,10 +56,9 @@ def owner_dashboard_view(request):
         booking.status_label = booking.get_status_display()
         booking.status_badge_class = status_badge_map.get(booking.status, 'bg-light text-muted')
         booking.card_state = 'booking-cancelled' if booking.status == 'cancelled' else ''
+        booking.can_approve = booking.status == 'pending'
+        booking.can_cancel = booking.status in {'pending', 'active', 'upcoming'}
         bookings.append(booking)
-
-    students = User.objects.filter(user_type='student').order_by('first_name', 'username')
-
     for pg in pgs:
         pg.room_form = AddRoomForm(pg=pg)
         pg.bed_form = AddBedForm(pg=pg)
@@ -69,7 +69,7 @@ def owner_dashboard_view(request):
         'occupied_beds': occupied_beds,
         'occupancy_rate': occupancy_rate,
     }
-    context = {'pgs': pgs, 'stats': stats, 'bookings': bookings, 'students': students}
+    context = {'pgs': pgs, 'stats': stats, 'bookings': bookings}
     return render(request, 'owner_dashboard.html', context)
 
 
@@ -91,22 +91,37 @@ def add_property_view(request):
     return render(request, 'add_property.html', context)
 
 
+@require_POST
 @owner_required
-def owner_update_booking_view(request, booking_id):
-    booking = get_object_or_404(Booking.objects.select_related('bed__room__pg'), id=booking_id)
+def owner_booking_decision_view(request, booking_id):
+    booking = get_object_or_404(Booking.objects.select_related('bed__room__pg', 'bed'), id=booking_id)
     if booking.bed.room.pg.owner != request.user:
-        messages.error(request, "You can only modify bookings for your own properties.")
+        messages.error(request, "You can only manage bookings for your own properties.")
         return redirect('owner_dashboard')
 
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        if user_id:
-            occupant = get_object_or_404(User, id=user_id, user_type='student')
-            booking.user = occupant
-        else:
-            booking.user = None
-        booking.save(update_fields=['user'])
-        messages.success(request, "Booking occupant updated successfully.")
+    action = request.POST.get('action')
+    if action not in {'approve', 'cancel'}:
+        messages.error(request, "Invalid action requested.")
+        return redirect('owner_dashboard')
+
+    if action == 'approve':
+        if booking.status != 'pending':
+            messages.info(request, "This booking is no longer awaiting approval.")
+            return redirect('owner_dashboard')
+        booking.mark_active()
+        if booking.bed:
+            booking.bed.is_available = False
+            booking.bed.save(update_fields=['is_available'])
+        messages.success(request, "Booking approved and activated.")
+    else:  # cancel
+        if booking.status == 'cancelled':
+            messages.info(request, "This booking is already cancelled.")
+            return redirect('owner_dashboard')
+        booking.mark_cancelled()
+        if booking.bed:
+            booking.bed.is_available = True
+            booking.bed.save(update_fields=['is_available'])
+        messages.success(request, "Booking request cancelled.")
 
     return redirect('owner_dashboard')
 

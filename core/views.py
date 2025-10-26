@@ -384,27 +384,6 @@ def booking_success_view(request, booking_id):
     return render(request, 'booking_success.html', context)
 
 
-@owner_required
-def owner_update_booking_view(request, booking_id):
-
-    booking = get_object_or_404(Booking.objects.select_related('bed__room__pg'), id=booking_id)
-    if booking.bed.room.pg.owner != request.user:
-        messages.error(request, "You can only modify bookings for your own properties.")
-        return redirect('owner_dashboard')
-
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        if user_id:
-            occupant = get_object_or_404(User, id=user_id, user_type='student')
-            booking.user = occupant
-        else:
-            booking.user = None
-        booking.save(update_fields=['user'])
-        messages.success(request, "Booking occupant updated successfully.")
-
-    return redirect('owner_dashboard')
-
-
 @require_POST
 @owner_required
 def owner_add_room_view(request, pg_id):
