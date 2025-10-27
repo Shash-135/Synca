@@ -70,6 +70,40 @@ class OwnerPropertyCreateView(FormView):
 
 
 @method_decorator(owner_required, name="dispatch")
+class OwnerPropertyUpdateView(FormView):
+    template_name = "owner/edit_property.html"
+    form_class = PropertyForm
+    success_url = reverse_lazy("owner_dashboard")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.pg = get_object_or_404(PG, id=kwargs["pg_id"], owner=request.user)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["owner"] = self.request.user
+        kwargs["instance"] = self.pg
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, f"{self.pg.pg_name} updated successfully.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the highlighted errors before saving.")
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pg"] = self.pg
+        context["existing_images"] = self.pg.images.order_by("created_at", "id")
+        form = context.get("form")
+        context["show_delete_images"] = bool(form and "delete_images" in form.fields)
+        return context
+
+
+@method_decorator(owner_required, name="dispatch")
 class OwnerBookingDecisionView(View):
     http_method_names = ["post"]
     service_class = OwnerBookingActionService

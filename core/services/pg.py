@@ -134,6 +134,7 @@ class PGDetailService:
     def build_context(self) -> dict[str, object]:
         reviews = self.get_reviews()
         rooms = self.get_rooms_with_beds()
+        gallery_images = list(self.pg.images.all())
         return {
             "reviews": reviews,
             "average_rating": self.calculate_average_rating(reviews),
@@ -141,4 +142,6 @@ class PGDetailService:
             "rooms": rooms,
             "lock_in_period": self.pg.lock_in_period,
             "deposit": self.pg.deposit,
+            "primary_image": self.pg.primary_photo,
+            "gallery_images": gallery_images,
         }

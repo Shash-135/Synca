@@ -146,15 +146,15 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Property Image -->
+                        <!-- Property Photos -->
                         <div class="mb-5">
-                            <h2 class="h5 mb-4 pb-2 border-bottom">Property Image</h2>
+                            <h2 class="h5 mb-4 pb-2 border-bottom">Property Photos</h2>
                             <div class="mb-3">
-                                <label for="id_property_image" class="form-label">Main Image {% if form.property_image.field.required %}<span class="text-danger">*</span>{% endif %}</label>
-                                <input type="file" class="form-control{% if form.property_image.errors %} is-invalid{% endif %}" id="id_property_image" name="property_image" accept="image/*" {% if form.property_image.field.required %}required{% endif %}>
-                                <div class="form-text">Upload a high-quality image of your property (Max 5MB)</div>
-                                {% if form.property_image.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.property_image.errors|join:', ' }}</div>
+                                <label for="id_property_images" class="form-label">Upload at least four photos <span class="text-danger">*</span></label>
+                                {{ form.property_images }}
+                                <div class="form-text">Select four or more images to help students get a complete view. Hold Ctrl (Cmd on Mac) to select multiple files.</div>
+                                {% if form.property_images.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.property_images.errors|join:', ' }}</div>
                                 {% endif %}
                             </div>
                         </div>

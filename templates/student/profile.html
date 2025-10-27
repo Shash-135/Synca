@@ -16,9 +16,15 @@
             <div class="card-body p-4">
                 <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
                     <div class="flex-shrink-0">
+                        {% if request.user.profile_photo %}
+                        <div class="rounded-circle overflow-hidden" style="width: 96px; height: 96px;">
+                            <img src="{{ request.user.profile_photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }} profile photo" class="w-100 h-100 object-fit-cover">
+                        </div>
+                        {% else %}
                         <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 96px; height: 96px;">
                             <span class="fs-2 fw-semibold text-primary">{{ request.user.first_name|slice:":1"|default:"S" }}{{ request.user.last_name|slice:":1" }}</span>
                         </div>
+                        {% endif %}
                     </div>
                     <div class="flex-grow-1">
                         <h2 class="h4 mb-1">{{ request.user.get_full_name|default:request.user.username }}</h2>
@@ -43,7 +49,7 @@
             </div>
         </div>
 
-        <form method="post" class="card border-0 shadow-sm mb-4">
+    <form method="post" class="card border-0 shadow-sm mb-4" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="profile">
             <div class="card-header bg-white py-3">
@@ -83,6 +89,19 @@
                         <label class="form-label">Primary Contact Number</label>
                         {{ user_form.contact_number }}
                         {% for error in user_form.contact_number.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Profile Photo</label>
+                        {{ user_form.profile_photo }}
+                        <small class="text-muted d-block mt-1">Use a clear square image (max 5MB).</small>
+                        {% if request.user.profile_photo %}
+                        <div class="form-check mt-2">
+                            {{ user_form.remove_profile_photo }}
+                            <label class="form-check-label" for="id_remove_profile_photo">Remove current photo</label>
+                        </div>
+                        {% endif %}
+                        {% for error in user_form.profile_photo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        {% for error in user_form.remove_profile_photo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Alternate Phone</label>

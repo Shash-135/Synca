@@ -42,13 +42,26 @@
     <div class="row mb-5">
         <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="rounded overflow-hidden" style="height: 400px;">
-             {% if pg.image %}
-             <img src="{{ pg.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }} exterior" loading="lazy" decoding="async">
+             {% if primary_image %}
+             <img src="{{ primary_image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ pg.pg_name }} exterior" loading="lazy" decoding="async">
              {% else %}
              <img src="https://images.unsplash.com/photo-1721522281545-fad32dd5107a" 
                  class="w-100 h-100 object-fit-cover" alt="Illustrative accommodation for {{ pg.pg_name }}" loading="lazy" decoding="async">
              {% endif %}
             </div>
+            {% if gallery_images %}
+            <div class="row g-2 mt-2">
+                {% for photo in gallery_images %}
+                {% if not primary_image or photo.image.name != primary_image.name %}
+                <div class="col-3">
+                    <div class="ratio ratio-1x1 rounded overflow-hidden">
+                        <img src="{{ photo.image.url }}" class="w-100 h-100 object-fit-cover" alt="Additional view of {{ pg.pg_name }}" loading="lazy" decoding="async">
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
         
         <div class="col-lg-6">

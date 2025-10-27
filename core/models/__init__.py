@@ -2,7 +2,7 @@
 
 from .booking import Booking
 from .profile import StudentProfile
-from .property import Bed, PG, Room
+from .property import Bed, PG, PGImage, Room
 from .review import Review
 from .user import User
 
@@ -10,6 +10,7 @@ __all__ = [
     "User",
     "PG",
     "Room",
+    "PGImage",
     "Bed",
     "Booking",
     "StudentProfile",
