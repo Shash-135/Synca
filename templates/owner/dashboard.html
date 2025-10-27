@@ -130,9 +130,14 @@
                                 </div>
                             </div>
                             
-                            <a href="{% url 'pg_detail' pg.id %}" class="btn btn-outline-primary w-100">
-                                View Details
-                            </a>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'pg_detail' pg.id %}" class="btn btn-outline-primary">
+                                    View Details
+                                </a>
+                                <a href="{% url 'owner_edit_property' pg.id %}" class="btn btn-outline-secondary">
+                                    Edit Property
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

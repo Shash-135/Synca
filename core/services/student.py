@@ -121,7 +121,15 @@ class StudentBookingsService:
                 booking.check_out = booking.check_in + timedelta(days=30)
             booking.badge_class = self.STATUS_BADGE_MAP.get(booking.status, "secondary")
             booking.status_label = booking.get_status_display()
-            booking.image_url = booking.pg.image.url if booking.pg.image else self.placeholder_image
+            primary_photo = getattr(booking.pg, "primary_photo", None)
+            image_field = primary_photo if primary_photo else booking.pg.image
+            image_url = None
+            if image_field:
+                try:
+                    image_url = image_field.url
+                except ValueError:
+                    image_url = None
+            booking.image_url = image_url or self.placeholder_image
             booking.monthly_rent = booking.room.price_per_bed or Decimal("0")
             booking.dates_form = BookingDatesForm(instance=booking)
             bookings.append(booking)
@@ -175,11 +183,18 @@ class StudentProfileService:
             field.widget.attrs["class"] = form_class
 
     # Update handlers --------------------------------------------------
-    def update_profile(self, data) -> tuple[bool, StudentBasicForm, StudentProfileForm]:
-        user_form = StudentBasicForm(data, instance=self.user)
+    def update_profile(self, data, files=None) -> tuple[bool, StudentBasicForm, StudentProfileForm]:
+        user_form = StudentBasicForm(data, files, instance=self.user)
         profile_form = StudentProfileForm(data, instance=self.profile)
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
+            user = user_form.save()
+            remove_photo = user_form.cleaned_data.get("remove_profile_photo")
+            uploaded_photo = user_form.cleaned_data.get("profile_photo")
+            if remove_photo and not uploaded_photo:
+                if user.profile_photo:
+                    user.profile_photo.delete(save=False)
+                user.profile_photo = None
+                user.save(update_fields=["profile_photo"])
             profile_form.save()
             return True, user_form, profile_form
         return False, user_form, profile_form

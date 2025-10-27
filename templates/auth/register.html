@@ -33,7 +33,7 @@
                             </li>
                         </ul>
                         
-                        <form method="POST" action="{% url 'register' %}" id="registerForm" class="needs-validation" novalidate>
+                        <form method="POST" action="{% url 'register' %}" id="registerForm" class="needs-validation" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
                             
                             <div class="mb-3">
@@ -69,6 +69,13 @@
                     <input type="text" class="form-control" id="contact_number" name="contact_number"
                         required placeholder="e.g., 9876543210" value="{{ form.contact_number.value|default_if_none:'' }}" pattern="^\d{10}$" maxlength="10" inputmode="numeric">
                     <div class="invalid-feedback">Enter a valid 10-digit contact number.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="profile_photo" class="form-label">Profile Photo (optional)</label>
+                                <input type="file" class="form-control" id="profile_photo" name="profile_photo" accept="image/*">
+                                {% if form.profile_photo.errors %}
+                                <div class="invalid-feedback d-block">{{ form.profile_photo.errors|join:', ' }}</div>
+                                {% endif %}
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>

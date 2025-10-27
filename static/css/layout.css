@@ -1,0 +1,62 @@
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.navbar .modern-toggler {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(3, 2, 19, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.navbar-nav .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.navbar .modern-toggler:hover {
+  background: rgba(3, 2, 19, 0.12);
+}
+
+.navbar .modern-toggler:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.modern-toggler .toggler-bar {
+  width: 22px;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 999px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.modern-toggler[aria-expanded="true"] {
+  background: rgba(3, 2, 19, 0.15);
+}
+
+.modern-toggler[aria-expanded="true"] .top {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.modern-toggler[aria-expanded="true"] .middle {
+  opacity: 0;
+}
+
+.modern-toggler[aria-expanded="true"] .bottom {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+.hero-section {
+  background: linear-gradient(to bottom, #e7f3ff, #ffffff);
+  padding: 4rem 0;
+}

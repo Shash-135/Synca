@@ -4,15 +4,22 @@ from ..models import Booking, StudentProfile, User
 
 
 class StudentBasicForm(forms.ModelForm):
+    remove_profile_photo = forms.BooleanField(
+        required=False,
+        label="Remove current photo",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
+
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "age", "gender", "contact_number"]
+        fields = ["first_name", "last_name", "age", "gender", "contact_number", "profile_photo"]
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "age": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "gender": forms.Select(attrs={"class": "form-select"}),
             "contact_number": forms.TextInput(attrs={"class": "form-control"}),
+            "profile_photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
 

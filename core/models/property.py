@@ -45,6 +45,14 @@ class PG(models.Model):
             return []
         return [amenity.strip() for amenity in self.amenities.split(",") if amenity.strip()]
 
+    @property
+    def primary_photo(self):
+        photo = self.image
+        if photo:
+            return photo
+        first_additional = self.images.order_by("created_at", "id").first()
+        return first_additional.image if first_additional else None
+
 
 class Room(models.Model):
     ROOM_TYPE_CHOICES = (
@@ -70,3 +78,15 @@ class Bed(models.Model):
     def __str__(self) -> str:  # pragma: no cover - simple display helper
         status = "Available" if self.is_available else "Occupied"
         return f"{self.room} - Bed {self.bed_identifier} ({status})"
+
+
+class PGImage(models.Model):
+    pg = models.ForeignKey(PG, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="pg_images/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+
+    def __str__(self) -> str:  # pragma: no cover - simple display helper
+        return f"Image for {self.pg.pg_name} ({self.image.name})"

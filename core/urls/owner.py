@@ -18,5 +18,6 @@ urlpatterns = [
     ),
     path("owner/pg/<int:pg_id>/rooms/add/", owner.OwnerRoomCreateView.as_view(), name="owner_add_room"),
     path("owner/pg/<int:pg_id>/beds/add/", owner.OwnerBedCreateView.as_view(), name="owner_add_bed"),
+    path("owner/pg/<int:pg_id>/edit/", owner.OwnerPropertyUpdateView.as_view(), name="owner_edit_property"),
     path("owner/add-property/", owner.OwnerPropertyCreateView.as_view(), name="add_property"),
 ]

@@ -12,6 +12,7 @@ class RegisterForm(forms.ModelForm):
         choices=[("", "Select gender")] + list(User.GENDER_CHOICES),
         widget=forms.Select,
     )
+    profile_photo = forms.ImageField(required=False)
 
     class Meta:
         model = User
@@ -25,6 +26,7 @@ class RegisterForm(forms.ModelForm):
             "occupation",
             "contact_number",
             "user_type",
+            "profile_photo",
         ]
 
     def clean(self):
@@ -49,6 +51,9 @@ class RegisterForm(forms.ModelForm):
         user.set_password(self.cleaned_data["password1"])
         user.gender = self.cleaned_data.get("gender") or None
         user.contact_number = self.cleaned_data.get("contact_number")
+        profile_photo = self.cleaned_data.get("profile_photo")
+        if profile_photo:
+            user.profile_photo = profile_photo
         if commit:
             user.save()
         return user

@@ -135,7 +135,7 @@ class StudentProfileView(TemplateView):
     def post(self, request, *args, **kwargs):
         form_type = request.POST.get("form_type", "profile")
         if form_type == "profile":
-            success, user_form, profile_form = self.service.update_profile(request.POST)
+            success, user_form, profile_form = self.service.update_profile(request.POST, request.FILES)
             password_form = self.service.password_form()
             if success:
                 messages.success(request, "Profile updated successfully.")

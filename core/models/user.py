@@ -23,3 +23,4 @@ class User(AbstractUser):
     occupation = models.CharField(max_length=20, choices=OCCUPATION_CHOICES, null=True, blank=True)
     contact_number = models.CharField(max_length=15, null=True, blank=True)
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, null=True, blank=True)
+    profile_photo = models.ImageField(upload_to="profile_photos/", null=True, blank=True)

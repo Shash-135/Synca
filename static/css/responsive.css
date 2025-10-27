@@ -1,0 +1,152 @@
+@media (max-width: 992px) {
+  .navbar {
+    padding: 12px 20px;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feature-card {
+    padding: 28px;
+  }
+
+  .dashboard-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid,
+  .transactions-list {
+    grid-column: 1;
+  }
+
+  .transactions-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .hero-content {
+    padding: 40px 24px;
+  }
+
+  .hero-description {
+    max-width: 100%;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cta-section {
+    padding: 64px 24px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
+  }
+
+  .auth-container {
+    padding: 24px;
+  }
+
+  .auth-card {
+    border-radius: 20px;
+  }
+
+  .dashboard-wrapper {
+    padding: 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transactions-list {
+    gap: 12px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 15px;
+  }
+
+  .hero-section {
+    padding: 40px 0 48px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+
+  .cta-section {
+    padding: 48px 20px;
+  }
+
+  .dashboard-wrapper {
+    padding: 20px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .dashboard-wrapper {
+    padding: 16px;
+  }
+
+  .transactions-list {
+    padding: 12px;
+  }
+
+  .transaction-item {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .transaction-amount {
+    font-size: 1rem;
+  }
+
+  .transaction-date {
+    font-size: 0.85rem;
+  }
+}

@@ -111,6 +111,9 @@ class PGDetailView(DetailView):
     context_object_name = "pg"
     service_class = PGDetailService
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("images")
+
     def get_review_service(self) -> ReviewService:
         return ReviewService(self.request.user)
 

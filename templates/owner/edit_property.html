@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit {{ pg.pg_name }} - Synca{% endblock %}
+
+{% block meta_description %}Update the details, gallery, and amenities for {{ pg.pg_name }} to keep students informed with the latest information.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h1 class="mb-1">Edit {{ pg.pg_name }}</h1>
+                    <p class="text-muted mb-0">Refresh property details and manage photos</p>
+                </div>
+                <a href="{% url 'owner_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors|join:', ' }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-5">
+                            <h2 class="h5 mb-4 pb-2 border-bottom">Basic Information</h2>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="id_pg_name" class="form-label">PG/Hostel Name <span class="text-danger">*</span></label>
+                                    {{ form.pg_name }}
+                                    {% for error in form.pg_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="id_area" class="form-label">Area <span class="text-danger">*</span></label>
+                                    {{ form.area }}
+                                    {% for error in form.area.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12">
+                                    <label for="id_address" class="form-label">Full Address <span class="text-danger">*</span></label>
+                                    {{ form.address }}
+                                    {% for error in form.address.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_city" class="form-label">City <span class="text-danger">*</span></label>
+                                    {{ form.city }}
+                                    {% for error in form.city.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_pincode" class="form-label">PIN Code <span class="text-danger">*</span></label>
+                                    {{ form.pincode }}
+                                    {% for error in form.pincode.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12">
+                                    <label for="id_description" class="form-label">Description</label>
+                                    {{ form.description }}
+                                    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_pg_type" class="form-label">PG Type <span class="text-danger">*</span></label>
+                                    {{ form.pg_type }}
+                                    {% for error in form.pg_type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="id_deposit" class="form-label">Deposit Amount</label>
+                                    {{ form.deposit }}
+                                    {% for error in form.deposit.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="id_lock_in_period" class="form-label">Lock-in Period (months)</label>
+                                    {{ form.lock_in_period }}
+                                    {% for error in form.lock_in_period.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <h2 class="h5 mb-4 pb-2 border-bottom">Amenities</h2>
+                            <div class="row g-3">
+                                {% for checkbox in form.amenities %}
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% for error in form.amenities.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        {% if existing_images %}
+                        <div class="mb-5">
+                            <h2 class="h5 mb-3">Current Photos</h2>
+                            <p class="text-muted small">Select any photos you want to remove. The property must keep at least four photos in total.</p>
+                            <div class="row g-3">
+                                {% for image in existing_images %}
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="card h-100">
+                                        <div class="ratio ratio-1x1">
+                                            <img src="{{ image.image.url }}" class="w-100 h-100 object-fit-cover" alt="Existing photo {{ forloop.counter }} of {{ pg.pg_name }}">
+                                        </div>
+                                        {% if show_delete_images %}
+                                        <div class="card-body py-2">
+                                            {% for checkbox in form.delete_images %}
+                                                {% if checkbox.data.value == image.id|stringformat:"s" %}
+                                                    <div class="form-check">
+                                                        {{ checkbox.tag }}
+                                                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">Remove this photo</label>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if show_delete_images %}
+                                {% for error in form.delete_images.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-5">
+                            <h2 class="h5 mb-4 pb-2 border-bottom">Add New Photos</h2>
+                            <div class="mb-3">
+                                <label for="id_property_images" class="form-label">Upload more photos</label>
+                                {{ form.property_images }}
+                                <div class="form-text">Upload JPG, JPEG, PNG, or WEBP files. You can select multiple images.</div>
+                                {% for error in form.property_images.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Keep at least four photos so students get a complete sense of your property.
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+                            <a href="{% url 'owner_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
