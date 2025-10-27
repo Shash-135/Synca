@@ -125,6 +125,25 @@ class OfflineBookingForm(forms.Form):
                 existing_class = field.widget.attrs.get("class", "")
                 field.widget.attrs["class"] = f"{existing_class} {css_class}".strip()
 
+        self.fields["first_name"].widget.attrs.update(
+            {"placeholder": "Tenant first name", "minlength": 2, "autocomplete": "given-name"}
+        )
+        self.fields["last_name"].widget.attrs.update(
+            {"placeholder": "Tenant last name", "minlength": 2, "autocomplete": "family-name"}
+        )
+        self.fields["email"].widget.attrs.update(
+            {"placeholder": "tenant@example.com", "autocomplete": "email"}
+        )
+        self.fields["age"].widget.attrs.update({"min": 0, "max": 120})
+        self.fields["contact_number"].widget.attrs.update(
+            {
+                "placeholder": "e.g., +91 98765 43210",
+                "pattern": "^[0-9+\\-\\s()]{7,15}$",
+                "inputmode": "tel",
+                "maxlength": 20,
+            }
+        )
+
     def clean_bed(self):
         bed = self.cleaned_data["bed"]
         if bed.room.pg.owner != self.owner:

@@ -62,6 +62,16 @@ const moduleRegistry = [
       }),
   },
   {
+    condition: () => document.getElementById('offlineBookingForm'),
+    loader: () =>
+      import('./modules/offlineBooking.js').then((module) => {
+        const init = module.initOfflineBookingValidation || module.default;
+        if (typeof init === 'function') {
+          init();
+        }
+      }),
+  },
+  {
     condition: () => document.querySelector('.bed-toggle'),
     loader: () =>
       import('./modules/ownerBeds.js').then((module) => {

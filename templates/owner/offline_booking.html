@@ -23,7 +23,7 @@
     <div class="card">
         <div class="card-body p-4">
             {% if has_available_beds %}
-            <form method="post" novalidate>
+            <form method="post" id="offlineBookingForm" class="needs-validation" novalidate>
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
@@ -36,79 +36,95 @@
 
                 <div class="row g-4">
                     <div class="col-12">
-                        <label class="form-label">Available Bed</label>
+                        <label class="form-label" for="id_bed">Available Bed</label>
                         {{ form.bed }}
-                        {% if form.bed.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.bed.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.bed.errors %} d-block{% endif %}" data-feedback-for="bed" data-default="Please select an available bed.">
+                            {% if form.bed.errors %}
+                                {{ form.bed.errors|join:', ' }}
+                            {% else %}
+                                Please select an available bed.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">First Name</label>
+                        <label class="form-label" for="id_first_name">First Name</label>
                         {{ form.first_name }}
-                        {% if form.first_name.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.first_name.errors %} d-block{% endif %}" data-feedback-for="first_name" data-default="Please enter the first name.">
+                            {% if form.first_name.errors %}
+                                {{ form.first_name.errors|join:', ' }}
+                            {% else %}
+                                Please enter the first name.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Last Name</label>
+                        <label class="form-label" for="id_last_name">Last Name</label>
                         {{ form.last_name }}
-                        {% if form.last_name.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.last_name.errors %} d-block{% endif %}" data-feedback-for="last_name" data-default="Please enter the last name.">
+                            {% if form.last_name.errors %}
+                                {{ form.last_name.errors|join:', ' }}
+                            {% else %}
+                                Please enter the last name.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Email</label>
+                        <label class="form-label" for="id_email">Email</label>
                         {{ form.email }}
-                        {% if form.email.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.email.errors %} d-block{% endif %}" data-feedback-for="email" data-default="Please enter a valid email address.">
+                            {% if form.email.errors %}
+                                {{ form.email.errors|join:', ' }}
+                            {% else %}
+                                Please enter a valid email address.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Age</label>
+                        <label class="form-label" for="id_age">Age</label>
                         {{ form.age }}
-                        {% if form.age.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.age.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.age.errors %} d-block{% endif %}" data-feedback-for="age" data-default="Enter a valid age between 0 and 120.">
+                            {% if form.age.errors %}
+                                {{ form.age.errors|join:', ' }}
+                            {% else %}
+                                Enter a valid age between 0 and 120.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Gender</label>
+                        <label class="form-label" for="id_gender">Gender</label>
                         {{ form.gender }}
-                        {% if form.gender.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.gender.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.gender.errors %} d-block{% endif %}" data-feedback-for="gender" data-default="Select a valid option or leave blank.">
+                            {% if form.gender.errors %}
+                                {{ form.gender.errors|join:', ' }}
+                            {% else %}
+                                Select a valid option or leave blank.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Occupation</label>
+                        <label class="form-label" for="id_occupation">Occupation</label>
                         {{ form.occupation }}
-                        {% if form.occupation.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.occupation.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.occupation.errors %} d-block{% endif %}" data-feedback-for="occupation" data-default="Select a valid option or leave blank.">
+                            {% if form.occupation.errors %}
+                                {{ form.occupation.errors|join:', ' }}
+                            {% else %}
+                                Select a valid option or leave blank.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Contact Number</label>
+                        <label class="form-label" for="id_contact_number">Contact Number</label>
                         {{ form.contact_number }}
-                        {% if form.contact_number.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.contact_number.errors %}{{ error }}{% endfor %}
+                        <div class="invalid-feedback{% if form.contact_number.errors %} d-block{% endif %}" data-feedback-for="contact_number" data-default="Enter a valid contact number or leave blank.">
+                            {% if form.contact_number.errors %}
+                                {{ form.contact_number.errors|join:', ' }}
+                            {% else %}
+                                Enter a valid contact number or leave blank.
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
 
