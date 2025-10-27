@@ -33,6 +33,7 @@ export function initRegisterPage() {
   const registerForm = document.getElementById('registerForm');
   const password1 = document.getElementById('password1');
   const password2 = document.getElementById('password2');
+  const contactNumber = document.getElementById('contact_number');
 
   userTypeInputs.forEach((input) => {
     input.addEventListener('change', () => {
@@ -85,6 +86,37 @@ export function initRegisterPage() {
     });
   }
 
+  if (contactNumber) {
+    const feedback = contactNumber.closest('.mb-3')?.querySelector('.invalid-feedback');
+    if (feedback) {
+      feedback.dataset.defaultMessage = feedback.textContent;
+    }
+
+    const enforceDigits = () => {
+      const digitsOnly = contactNumber.value.replace(/\D/g, '').slice(0, 10);
+      if (contactNumber.value !== digitsOnly) {
+        contactNumber.value = digitsOnly;
+        const cursorPos = Math.min(digitsOnly.length, 10);
+        window.requestAnimationFrame(() => {
+          contactNumber.setSelectionRange(cursorPos, cursorPos);
+        });
+      }
+
+      resetMessage(contactNumber);
+      if (contactNumber.value && contactNumber.value.length !== 10) {
+        setCustomMessage(contactNumber, 'Enter a valid 10-digit contact number.');
+      }
+    };
+
+    contactNumber.addEventListener('input', enforceDigits);
+    contactNumber.addEventListener('blur', () => {
+      enforceDigits();
+      if (contactNumber.value.length !== 10) {
+        setCustomMessage(contactNumber, 'Enter a valid 10-digit contact number.');
+      }
+    });
+  }
+
   if (registerForm) {
     const feedbackElements = registerForm.querySelectorAll('.invalid-feedback');
     feedbackElements.forEach((feedback) => {
@@ -110,6 +142,11 @@ export function initRegisterPage() {
       const requiresOccupation = checked && checked.value === 'student';
       if (requiresOccupation && occupationSelect && !occupationSelect.value) {
         setCustomMessage(occupationSelect, 'Select your occupation.');
+        valid = false;
+      }
+
+      if (contactNumber && contactNumber.value.length !== 10) {
+        setCustomMessage(contactNumber, 'Enter a valid 10-digit contact number.');
         valid = false;
       }
 

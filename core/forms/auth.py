@@ -35,10 +35,20 @@ class RegisterForm(forms.ModelForm):
             self.add_error("password2", "Passwords do not match.")
         return cleaned_data
 
+    def clean_contact_number(self):
+        contact = (self.cleaned_data.get("contact_number") or "").strip()
+        if contact:
+            digits_only = "".join(ch for ch in contact if ch.isdigit())
+            if len(digits_only) != 10:
+                raise forms.ValidationError("Contact number must contain exactly 10 digits.")
+            contact = digits_only
+        return contact
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.gender = self.cleaned_data.get("gender") or None
+        user.contact_number = self.cleaned_data.get("contact_number")
         if commit:
             user.save()
         return user

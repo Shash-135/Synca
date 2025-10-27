@@ -12,6 +12,16 @@ const moduleRegistry = [
       }),
   },
   {
+    condition: () => document.querySelector('.auth-card'),
+    loader: () =>
+      import('./modules/authTransition.js').then((module) => {
+        const init = module.initAuthTransition || module.default;
+        if (typeof init === 'function') {
+          init();
+        }
+      }),
+  },
+  {
     condition: () => document.querySelector('.toggle-password'),
     loader: () =>
       import('./modules/passwordToggle.js').then((module) => {

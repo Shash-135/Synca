@@ -12,7 +12,7 @@
         <h1 class="visually-hidden">Create your Synca account</h1>
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card border-0 shadow">
+                <div class="card border-0 shadow auth-card">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
@@ -26,10 +26,10 @@
                         
                         <ul class="nav nav-pills nav-fill mb-4" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                                <a class="nav-link" href="{% url 'login' %}" data-auth-nav>Login</a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link active" href="{% url 'register' %}">Register</a>
+                                <a class="nav-link active" href="{% url 'register' %}" data-auth-nav>Register</a>
                             </li>
                         </ul>
                         
@@ -67,8 +67,8 @@
                             <div class="mb-3">
                                 <label for="contact_number" class="form-label">Contact Number</label>
                     <input type="text" class="form-control" id="contact_number" name="contact_number"
-                        required placeholder="e.g., 9876543210" value="{{ form.contact_number.value|default_if_none:'' }}" pattern="^\d{10,15}$" inputmode="tel">
-                    <div class="invalid-feedback">Enter a valid contact number using 10 to 15 digits.</div>
+                        required placeholder="e.g., 9876543210" value="{{ form.contact_number.value|default_if_none:'' }}" pattern="^\d{10}$" maxlength="10" inputmode="numeric">
+                    <div class="invalid-feedback">Enter a valid 10-digit contact number.</div>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>

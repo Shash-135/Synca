@@ -10,7 +10,7 @@
         <h1 class="visually-hidden">Log in to Synca</h1>
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card border-0 shadow">
+                <div class="card border-0 shadow auth-card">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
@@ -24,10 +24,10 @@
                         
                         <ul class="nav nav-pills nav-fill mb-4" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link active" href="{% url 'login' %}">Login</a>
+                                <a class="nav-link active" href="{% url 'login' %}" data-auth-nav>Login</a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                                <a class="nav-link" href="{% url 'register' %}" data-auth-nav>Register</a>
                             </li>
                         </ul>
                         
