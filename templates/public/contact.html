@@ -12,13 +12,22 @@
     "@type": "Organization",
     "name": "Synca",
     "url": "https://synca.com",
-    "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+91 98765 43210",
-        "contactType": "customer support",
-        "areaServed": "IN",
-        "availableLanguage": ["en", "hi"]
-    }
+    "contactPoint": [
+        {
+            "@type": "ContactPoint",
+            "telephone": "+91 86689 02342",
+            "contactType": "customer support",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi"]
+        },
+        {
+            "@type": "ContactPoint",
+            "telephone": "+91 74991 81267",
+            "contactType": "customer support",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi"]
+        }
+    ]
 }
 </script>
 {% endblock %}
@@ -61,7 +70,7 @@
                                 
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 98765 43210" pattern="^\+?\d{7,15}$" inputmode="tel">
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 86689 02342" pattern="^\+?\d{7,15}$" inputmode="tel">
                                     <div class="invalid-feedback">Use digits only, optionally prefixed with +, min 7 and max 15 digits.</div>
                                 </div>
                                 
@@ -107,8 +116,8 @@
                                     <i class="bi bi-geo-alt text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
                                     <div>
                                         <p class="mb-0 small">
-                                            123 Tech Park, Sector 15<br>
-                                            Bangalore, Karnataka 560001<br>
+                                            123 Tech Park, Hinjewadi Phase 1<br>
+                                            Pune, Maharashtra 411057<br>
                                             India
                                         </p>
                                     </div>
@@ -120,8 +129,8 @@
                                     <i class="bi bi-telephone text-primary fs-5 mt-1" style="flex-shrink: 0;"></i>
                                     <div>
                                         <p class="mb-0 small">
-                                            +91 98765 43210<br>
-                                            +91 98765 43211
+                                            +91 86689 02342<br>
+                                            +91 74991 81267
                                         </p>
                                     </div>
                                 </div>
