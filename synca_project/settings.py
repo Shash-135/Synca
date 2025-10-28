@@ -8,7 +8,6 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [ 
     'localhost',
-    '192.168.0.149',
     '127.0.0.1',
  ]
 
