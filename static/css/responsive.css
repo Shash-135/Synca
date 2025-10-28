@@ -3,6 +3,35 @@
     padding: 12px 20px;
   }
 
+  .navbar-nav {
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .btn {
+    display: block;
+    padding: 10px 0;
+    font-weight: 500;
+    color: var(--primary-color);
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .btn:hover {
+    background: none;
+    color: var(--primary-color);
+  }
+
+  .navbar-nav .nav-link i,
+  .navbar-nav .btn i {
+    display: none;
+  }
+
   .hero-title {
     font-size: clamp(2rem, 5vw, 3rem);
   }
