@@ -1,5 +1,3 @@
-import { initAlertBridge } from './modules/alerts.js';
-
 const moduleRegistry = [
   {
     condition: () => document.querySelector('form.needs-validation'),
@@ -140,7 +138,6 @@ function setupMobileNavbar() {
 }
 
 function initializeModules() {
-  initAlertBridge();
   setupMobileNavbar();
 
   moduleRegistry.forEach(({ condition, loader }) => {

@@ -49,5 +49,9 @@ export function showAlert(message, level = 'info', options = {}) {
 }
 
 export function initAlertBridge() {
-  window.showAlert = showAlert;
+  if (typeof window !== 'undefined' && !window.showAlert) {
+    window.showAlert = showAlert;
+  }
 }
+
+initAlertBridge();
