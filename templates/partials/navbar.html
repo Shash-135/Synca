@@ -1,14 +1,14 @@
 {% load static %}
 <!-- Navigation -->
-    {% if not hide_nav %}
+{% if not hide_nav %}
+    {% with current=request.resolver_match.url_name|default:'' %}
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <img src="{% static 'images/logo.svg' %}" alt="Synca logo" width="40" height="40" class="me-2" loading="lazy" decoding="async">
-                <!-- <i class="bi bi-building me-2 text-primary"></i> -->
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <img src="{% static 'images/logo.svg' %}" class="navbar-logo" alt="Synca logo" />
                 <div>
                     <div class="fw-bold">Synca</div>
-                    <div style="font-size: 0.625rem; color: var(--text-muted);">Syncing up with the perfect place</div>
+                    <div class="navbar-tagline">Syncing up with the perfect place</div>
                 </div>
             </a>
             
@@ -21,38 +21,44 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
-                            <i class="bi bi-house me-1"></i> Home
+                        <a class="nav-link {% if current == 'home' %}active{% endif %}" href="{% url 'home' %}" {% if current == 'home' %}aria-current="page"{% endif %}>
+                            <i class="bi bi-house me-1" aria-hidden="true"></i>
+                            Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">
-                            <i class="bi bi-info-circle me-1"></i> About
+                        <a class="nav-link {% if current == 'about' %}active{% endif %}" href="{% url 'about' %}" {% if current == 'about' %}aria-current="page"{% endif %}>
+                            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                            About
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact' %}">
-                            <i class="bi bi-envelope me-1"></i> Contact
+                        <a class="nav-link {% if current == 'contact' %}active{% endif %}" href="{% url 'contact' %}" {% if current == 'contact' %}aria-current="page"{% endif %}>
+                            <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+                            Contact
                         </a>
                     </li>
 
                     {% if user.is_authenticated %}
                         {% if user.user_type == 'student' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'student_bookings' %}">
-                                <i class="bi bi-journal-bookmark me-1"></i> My Bookings
+                            <a class="nav-link {% if current == 'student_bookings' %}active{% endif %}" href="{% url 'student_bookings' %}" {% if current == 'student_bookings' %}aria-current="page"{% endif %}>
+                                <i class="bi bi-journal-bookmark me-1" aria-hidden="true"></i>
+                                My Bookings
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'student_profile' %}">
-                                <i class="bi bi-person-circle me-1"></i> My Profile
+                            <a class="nav-link {% if current == 'student_profile' %}active{% endif %}" href="{% url 'student_profile' %}" {% if current == 'student_profile' %}aria-current="page"{% endif %}>
+                                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                                My Profile
                             </a>
                         </li>
                         {% endif %}
                         {% if user.user_type == 'owner' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'owner_dashboard' %}">
-                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            <a class="nav-link {% if current == 'owner_dashboard' %}active{% endif %}" href="{% url 'owner_dashboard' %}" {% if current == 'owner_dashboard' %}aria-current="page"{% endif %}>
+                                <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
+                                Dashboard
                             </a>
                         </li>
                         {% endif %}
@@ -70,14 +76,19 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-outline-dark btn-sm me-2" href="{% url 'login' %}">Login</a>
+                            <a class="btn btn-outline-dark btn-sm me-2" href="{% url 'login' %}" {% if current == 'login' %}aria-current="page"{% endif %}>
+                                <span>Login</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Register</a>
+                            <a class="btn btn-primary btn-sm" href="{% url 'register' %}" {% if current == 'register' %}aria-current="page"{% endif %}>
+                                <span>Register</span>
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-    {% endif %}
+    {% endwith %}
+{% endif %}
