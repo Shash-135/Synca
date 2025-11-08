@@ -1,6 +1,7 @@
 from django import forms
 
 from ..models import Booking, StudentProfile, User
+from ..models.booking import add_months
 
 
 class StudentBasicForm(forms.ModelForm):
@@ -57,6 +58,18 @@ class StudentProfileForm(forms.ModelForm):
 
 
 class BookingDatesForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lock_in_months = None
+        instance = getattr(self, "instance", None)
+        if instance and getattr(instance, "bed_id", None):
+            pg = instance.bed.room.pg
+            self.lock_in_months = pg.lock_in_period or None
+        if self.lock_in_months:
+            for field in self.fields.values():
+                field.disabled = True
+                field.widget.attrs["readonly"] = True
+
     class Meta:
         model = Booking
         fields = ["check_in", "check_out"]
@@ -71,4 +84,13 @@ class BookingDatesForm(forms.ModelForm):
         check_out = cleaned_data.get("check_out")
         if check_in and check_out and check_out < check_in:
             self.add_error("check_out", "Check-out date cannot be before check-in date.")
+        lock_in = getattr(self, "lock_in_months", None)
+        if lock_in and check_in:
+            expected_checkout = add_months(check_in, lock_in)
+            if not check_out or check_out != expected_checkout:
+                message = (
+                    f"Check-out must be exactly {lock_in} month{'s' if lock_in != 1 else ''} after check-in."
+                )
+                self.add_error("check_out", message)
+                cleaned_data["check_out"] = expected_checkout
         return cleaned_data

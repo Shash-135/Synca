@@ -1,3 +1,4 @@
+from calendar import monthrange
 from datetime import timedelta
 
 from django.db import models
@@ -38,7 +39,10 @@ class Booking(models.Model):
         self.status = "active"
         if not self.check_in:
             self.check_in = today
-        if not self.check_out:
+        lock_in = self.lock_in_period_months
+        if lock_in:
+            self.check_out = add_months(self.check_in, lock_in)
+        elif not self.check_out:
             self.check_out = self.check_in + timedelta(days=30)
         self.save(update_fields=["status", "check_in", "check_out"])
 
@@ -73,3 +77,30 @@ class Booking(models.Model):
         if persist:
             self.save(update_fields=["status"])
         return self.status
+
+    @property
+    def lock_in_period_months(self) -> int | None:
+        if not self.bed_id:
+            return None
+        bed = getattr(self, "bed", None)
+        if bed is None:
+            return None
+        room = getattr(bed, "room", None)
+        if room is None:
+            return None
+        pg = getattr(room, "pg", None)
+        if pg is None:
+            return None
+        return pg.lock_in_period or None
+
+
+def add_months(start_date, months: int):
+    """Return a date shifted forward by ``months`` preserving day when possible."""
+
+    if months <= 0:
+        return start_date
+    month_index = start_date.month - 1 + months
+    year = start_date.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(start_date.day, monthrange(year, month)[1])
+    return start_date.replace(year=year, month=month, day=day)

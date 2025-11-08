@@ -11,6 +11,7 @@ from django.utils.text import slugify
 
 from ..forms import AddBedForm, AddRoomForm
 from ..models import Bed, Booking, PG
+from ..models.booking import add_months
 
 User = get_user_model()
 
@@ -172,13 +173,18 @@ class OfflineBookingService:
 
     def create_booking(self, bed: Bed, occupant: Any) -> Booking:
         today: date = timezone.now().date()
+        lock_in_months = bed.room.pg.lock_in_period or 0
+        if lock_in_months:
+            checkout_date = add_months(today, lock_in_months)
+        else:
+            checkout_date = today + timedelta(days=30)
         booking = Booking.objects.create(
             user=occupant,
             bed=bed,
             booking_type="Offline",
             status="active",
             check_in=today,
-            check_out=today + timedelta(days=30),
+            check_out=checkout_date,
         )
         bed.is_available = False
         bed.save(update_fields=["is_available"])

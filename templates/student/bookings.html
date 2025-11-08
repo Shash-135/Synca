@@ -30,16 +30,6 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-upcoming" data-bs-toggle="tab" data-bs-target="#pane-upcoming" type="button" role="tab">
-                    Upcoming ({{ status_counts.upcoming }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-completed" data-bs-toggle="tab" data-bs-target="#pane-completed" type="button" role="tab">
-                    Completed ({{ status_counts.completed }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-cancelled" data-bs-toggle="tab" data-bs-target="#pane-cancelled" type="button" role="tab">
                     Cancelled ({{ status_counts.cancelled }})
                 </button>
@@ -55,12 +45,6 @@
             </div>
             <div class="tab-pane fade" id="pane-pending" role="tabpanel" aria-labelledby="tab-pending">
                 {% include 'partials/booking_cards.html' with booking_list=bookings_by_status.pending empty_message="No pending booking requests." %}
-            </div>
-            <div class="tab-pane fade" id="pane-upcoming" role="tabpanel" aria-labelledby="tab-upcoming">
-                {% include 'partials/booking_cards.html' with booking_list=bookings_by_status.upcoming empty_message="No upcoming stays scheduled." %}
-            </div>
-            <div class="tab-pane fade" id="pane-completed" role="tabpanel" aria-labelledby="tab-completed">
-                {% include 'partials/booking_cards.html' with booking_list=bookings_by_status.completed empty_message="You'll see completed bookings here." %}
             </div>
             <div class="tab-pane fade" id="pane-cancelled" role="tabpanel" aria-labelledby="tab-cancelled">
                 {% include 'partials/booking_cards.html' with booking_list=bookings_by_status.cancelled empty_message="No cancelled bookings." %}

@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from ..forms import BookingDatesForm, StudentBasicForm, StudentProfileForm
 from ..models import Bed, Booking, StudentProfile
+from ..models.booking import add_months
 
 User = get_user_model()
 
@@ -50,13 +51,18 @@ class BookingRequestService:
             raise ValueError("Selected bed has already been booked.")
 
         today = timezone.now().date()
+        lock_in_months = bed.room.pg.lock_in_period or 0
+        if lock_in_months > 0:
+            checkout_date = add_months(today, lock_in_months)
+        else:
+            checkout_date = today + timedelta(days=30)
         booking = Booking.objects.create(
             user=self.user,
             bed=bed,
             booking_type="Online",
             status="pending",
             check_in=today,
-            check_out=today + timedelta(days=30),
+            check_out=checkout_date,
         )
         bed.is_available = False
         bed.save(update_fields=["is_available"])
@@ -118,7 +124,11 @@ class StudentBookingsService:
             if not booking.check_in:
                 booking.check_in = booking.booking_date.date()
             if not booking.check_out and booking.check_in:
-                booking.check_out = booking.check_in + timedelta(days=30)
+                lock_in_months = getattr(booking.pg, "lock_in_period", 0) or 0
+                if lock_in_months:
+                    booking.check_out = add_months(booking.check_in, lock_in_months)
+                else:
+                    booking.check_out = booking.check_in + timedelta(days=30)
             booking.badge_class = self.STATUS_BADGE_MAP.get(booking.status, "secondary")
             booking.status_label = booking.get_status_display()
             primary_photo = getattr(booking.pg, "primary_photo", None)
@@ -131,6 +141,7 @@ class StudentBookingsService:
                     image_url = None
             booking.image_url = image_url or self.placeholder_image
             booking.monthly_rent = booking.room.price_per_bed or Decimal("0")
+            booking.lock_in_period_months = getattr(booking.pg, "lock_in_period", None) or None
             booking.dates_form = BookingDatesForm(instance=booking)
             bookings.append(booking)
         return bookings
@@ -236,6 +247,11 @@ class BookingMutationService:
 
     def update_dates(self, booking: Booking, data) -> BookingDatesForm:
         form = BookingDatesForm(data, instance=booking)
+        lock_in = getattr(booking.bed.room.pg, "lock_in_period", None)
+        if lock_in:
+            months_label = "month" if lock_in == 1 else "months"
+            form.add_error(None, f"This booking has a lock-in period of {lock_in} {months_label}; dates cannot be changed.")
+            return form
         if form.is_valid():
             updated_booking = form.save()
             updated_booking.refresh_status()
