@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -19,6 +21,11 @@ class SplashView(TemplateView):
 class HomeView(TemplateView):
     template_name = "public/home.html"
     catalog_service_class = PGCatalogService
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and getattr(request.user, "user_type", "") == "owner":
+            return redirect("owner_dashboard")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_catalog_service(self) -> PGCatalogService:
         return self.catalog_service_class()
@@ -65,8 +72,22 @@ class LoginView(FormView):
 
     def get_success_url(self):
         redirect_to = self.request.POST.get("next") or self.request.GET.get("next")
+        user = getattr(self.request, "user", None)
+        is_owner = bool(user and user.is_authenticated and getattr(user, "user_type", "") == "owner")
         if redirect_to and url_has_allowed_host_and_scheme(redirect_to, allowed_hosts={self.request.get_host()}):
+            if is_owner:
+                target_path = urlsplit(redirect_to).path or redirect_to
+                home_path = str(reverse_lazy("home"))
+                home_variants = {home_path, home_path.lstrip("/")}
+                home_variants.add(home_path.strip("/"))
+                allowed_paths = {"", "/"}
+                allowed_paths.update(home_variants)
+                if target_path not in allowed_paths:
+                    return redirect_to
+                return str(reverse_lazy("owner_dashboard"))
             return redirect_to
+        if is_owner:
+            return str(reverse_lazy("owner_dashboard"))
         return super().get_success_url()
 
     def form_valid(self, form):
