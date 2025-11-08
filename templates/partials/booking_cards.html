@@ -88,14 +88,14 @@
                                     View Property
                                 </a>
                                 {% if booking.status == 'active' or booking.status == 'upcoming' %}
-                                {% if not booking.lock_in_period_months %}
-                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#updateDates{{ booking.id }}">
-                                    Update Dates
-                                </button>
-                                {% else %}
+                                {% if booking.lock_in_period_months %}
                                 <span class="badge bg-info-subtle text-info align-self-center">
                                     Lock-in: {{ booking.lock_in_period_months }} month{{ booking.lock_in_period_months|pluralize }}
                                 </span>
+                                {% else %}
+                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#updateDates{{ booking.id }}">
+                                    Update Dates
+                                </button>
                                 {% endif %}
                                 <form method="post" action="{% url 'student_booking_cancel' booking.id %}" class="d-inline" onsubmit="return confirm('Cancel this booking? The bed will be released back to the property.');">
                                     {% csrf_token %}
@@ -114,7 +114,8 @@
                                 {% endif %}
                             </div>
 
-                            {% if (booking.status == 'active' or booking.status == 'upcoming') and not booking.lock_in_period_months %}
+                            {% if booking.status == 'active' or booking.status == 'upcoming' %}
+                            {% if not booking.lock_in_period_months %}
                             <div class="collapse mt-3" id="updateDates{{ booking.id }}">
                                 <form method="post" action="{% url 'student_booking_update_dates' booking.id %}" class="row g-2">
                                     {% csrf_token %}
@@ -132,6 +133,11 @@
                                 </form>
                                 <p class="text-muted small mt-2 mb-0">Check-out must be on or after the check-in date.</p>
                             </div>
+                            {% else %}
+                            <p class="text-muted small mt-3 mb-0">
+                                Dates are fixed for the {{ booking.lock_in_period_months }}-month lock-in period set by the owner.
+                            </p>
+                            {% endif %}
                             {% elif booking.lock_in_period_months %}
                             <p class="text-muted small mt-3 mb-0">
                                 Dates are fixed for the {{ booking.lock_in_period_months }}-month lock-in period set by the owner.

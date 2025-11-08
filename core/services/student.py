@@ -141,7 +141,6 @@ class StudentBookingsService:
                     image_url = None
             booking.image_url = image_url or self.placeholder_image
             booking.monthly_rent = booking.room.price_per_bed or Decimal("0")
-            booking.lock_in_period_months = getattr(booking.pg, "lock_in_period", None) or None
             booking.dates_form = BookingDatesForm(instance=booking)
             bookings.append(booking)
         return bookings

@@ -147,7 +147,15 @@ class OwnerRoomCreateView(View):
         service = self.get_service()
         success, form, room = service.create_room(pg, request.POST)
         if success:
-            messages.success(request, f"Room {room.room_number} added to {pg.pg_name}.")
+            capacity = room.share_capacity
+            if capacity:
+                messages.success(
+                    request,
+                    f"Room {room.room_number} added to {pg.pg_name} with {capacity} bed"
+                    f"{'s' if capacity != 1 else ''} automatically configured.",
+                )
+            else:
+                messages.success(request, f"Room {room.room_number} added to {pg.pg_name}.")
         else:
             for errors in form.errors.values():
                 for error in errors:

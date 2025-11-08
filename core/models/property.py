@@ -69,6 +69,18 @@ class Room(models.Model):
     def __str__(self) -> str:  # pragma: no cover - simple display helper
         return f"{self.pg.pg_name} - Room {self.room_number}"
 
+    @property
+    def share_capacity(self) -> int | None:
+        """Return the expected number of beds based on the room's sharing type."""
+
+        raw_type = self.room_type or ""
+        try:
+            capacity_text = raw_type.split("-", 1)[0]
+            capacity = int(capacity_text)
+            return capacity if capacity > 0 else None
+        except (ValueError, IndexError):
+            return None
+
 
 class Bed(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="beds")

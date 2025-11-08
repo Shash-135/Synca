@@ -1,3 +1,5 @@
+from string import ascii_uppercase
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -184,7 +186,28 @@ class AddRoomForm(forms.ModelForm):
         room.pg = self.pg
         if commit:
             room.save()
+            self._ensure_required_beds(room)
         return room
+
+    def _ensure_required_beds(self, room: Room) -> None:
+        capacity = room.share_capacity
+        if not capacity:
+            return
+        existing_identifiers = set(room.beds.values_list("bed_identifier", flat=True))
+        if len(existing_identifiers) >= capacity:
+            return
+
+        index = 0
+        while len(existing_identifiers) < capacity:
+            if index < len(ascii_uppercase):
+                candidate = ascii_uppercase[index]
+            else:
+                candidate = f"Bed {index + 1}"
+            index += 1
+            if candidate in existing_identifiers:
+                continue
+            Bed.objects.create(room=room, bed_identifier=candidate)
+            existing_identifiers.add(candidate)
 
 
 class AddBedForm(forms.ModelForm):
@@ -197,7 +220,17 @@ class AddBedForm(forms.ModelForm):
         if pg is None:
             raise ValueError("AddBedForm requires a PG instance")
         self.pg = pg
-        self.fields["room"].queryset = Room.objects.filter(pg=pg).order_by("room_number")
+        rooms = list(Room.objects.filter(pg=pg).order_by("room_number"))
+        available_room_ids: list[int] = []
+        for room in rooms:
+            capacity = room.share_capacity
+            if capacity is None or room.beds.count() < capacity:
+                available_room_ids.append(room.id)
+        if available_room_ids:
+            queryset = Room.objects.filter(pg=pg, id__in=available_room_ids).order_by("room_number")
+        else:
+            queryset = Room.objects.none()
+        self.fields["room"].queryset = queryset
         css_map = {
             "room": "form-select",
             "bed_identifier": "form-control",
@@ -213,6 +246,18 @@ class AddBedForm(forms.ModelForm):
         if room and Bed.objects.filter(room=room, bed_identifier__iexact=bed_identifier).exists():
             raise forms.ValidationError("This bed identifier already exists in the selected room.")
         return bed_identifier
+
+    def clean(self):
+        cleaned_data = super().clean()
+        room = cleaned_data.get("room")
+        if not room:
+            return cleaned_data
+        capacity = room.share_capacity
+        if capacity and room.beds.count() >= capacity:
+            raise forms.ValidationError(
+                f"Room {room.room_number} is already configured for {capacity} bed{'s' if capacity != 1 else ''}."
+            )
+        return cleaned_data
 
 
 class PropertyForm(forms.ModelForm):
