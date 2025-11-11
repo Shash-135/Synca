@@ -16,6 +16,3 @@ Pillow~=10.1
 # For loading environment variables from a .env file (for SECRET_KEY, DB passwords, etc.)
 python-dotenv~=1.0
 
-# Django REST Framework for building APIs
-djangorestframework~=3.15
-
