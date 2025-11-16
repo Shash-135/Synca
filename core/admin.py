@@ -1,10 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models.booking import Booking
-from .models.property import Bed, PG, Room
-from .models.review import Review
-from .models.user import User
+from .models import Bed, Booking, PG, Review, Room, User
 
 
 @admin.register(User)

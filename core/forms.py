@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from string import ascii_uppercase
 
 from django import forms
@@ -5,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 from PIL import Image, UnidentifiedImageError
 
-from ..models import Bed, PG, PGImage, Room, User
+from .models import Bed, Booking, PG, PGImage, Review, Room, StudentProfile, User, add_months
 
 AMENITY_CHOICES = [
     ("WiFi", "WiFi"),
@@ -18,6 +20,62 @@ AMENITY_CHOICES = [
     ("Power Backup", "Power Backup"),
     ("Refrigerator", "Refrigerator"),
 ]
+
+
+class RegisterForm(forms.ModelForm):
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput)
+    gender = forms.ChoiceField(
+        label="Gender",
+        required=False,
+        choices=[("", "Select gender")] + list(User.GENDER_CHOICES),
+        widget=forms.Select,
+    )
+    profile_photo = forms.ImageField(required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "age",
+            "gender",
+            "occupation",
+            "contact_number",
+            "user_type",
+            "profile_photo",
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            self.add_error("password2", "Passwords do not match.")
+        return cleaned_data
+
+    def clean_contact_number(self):
+        contact = (self.cleaned_data.get("contact_number") or "").strip()
+        if contact:
+            digits_only = "".join(ch for ch in contact if ch.isdigit())
+            if len(digits_only) != 10:
+                raise forms.ValidationError("Contact number must contain exactly 10 digits.")
+            contact = digits_only
+        return contact
+
+    def save(self, commit: bool = True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        user.gender = self.cleaned_data.get("gender") or None
+        user.contact_number = self.cleaned_data.get("contact_number")
+        profile_photo = self.cleaned_data.get("profile_photo")
+        if profile_photo:
+            user.profile_photo = profile_photo
+        if commit:
+            user.save()
+        return user
 
 
 class MultiFileInput(forms.ClearableFileInput):
@@ -140,7 +198,7 @@ class OfflineBookingForm(forms.Form):
         self.fields["contact_number"].widget.attrs.update(
             {
                 "placeholder": "e.g., +91 98765 43210",
-                "pattern": "^[0-9+\\-\\s()]{7,15}$",
+                "pattern": r"^[0-9+\-\s()]{7,15}$",
                 "inputmode": "tel",
                 "maxlength": 20,
             }
@@ -181,7 +239,7 @@ class AddRoomForm(forms.ModelForm):
             raise forms.ValidationError("A room with this number already exists in this PG.")
         return room_number
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         room = super().save(commit=False)
         room.pg = self.pg
         if commit:
@@ -374,7 +432,7 @@ class PropertyForm(forms.ModelForm):
                 self.add_error("property_images", error_message)
         return cleaned_data
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         pg = super().save(commit=False)
         if not self.owner:
             raise ValueError("PropertyForm.save() requires an owner instance")
@@ -443,3 +501,131 @@ class PropertyForm(forms.ModelForm):
         if pincode:
             composed = f"{composed} - {pincode.strip()}" if composed else pincode.strip()
         return composed
+
+
+class ReviewForm(forms.ModelForm):
+    rating = forms.IntegerField(
+        min_value=1,
+        max_value=5,
+        widget=forms.HiddenInput,
+    )
+
+    class Meta:
+        model = Review
+        fields = ["rating", "comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "minlength": 20,
+                    "required": True,
+                }
+            ),
+        }
+
+
+class StudentBasicForm(forms.ModelForm):
+    remove_profile_photo = forms.BooleanField(
+        required=False,
+        label="Remove current photo",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "age", "gender", "contact_number", "profile_photo"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "age": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "gender": forms.Select(attrs={"class": "form-select"}),
+            "contact_number": forms.TextInput(attrs={"class": "form-control"}),
+            "profile_photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
+        }
+
+
+class StudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = StudentProfile
+        fields = [
+            "phone",
+            "date_of_birth",
+            "address_line",
+            "city",
+            "state",
+            "pincode",
+            "college",
+            "course",
+            "academic_year",
+            "emergency_contact_name",
+            "emergency_contact_phone",
+            "bio",
+        ]
+        widgets = {
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "date_of_birth": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "address_line": forms.TextInput(attrs={"class": "form-control"}),
+            "city": forms.TextInput(attrs={"class": "form-control"}),
+            "state": forms.TextInput(attrs={"class": "form-control"}),
+            "pincode": forms.TextInput(attrs={"class": "form-control"}),
+            "college": forms.TextInput(attrs={"class": "form-control"}),
+            "course": forms.TextInput(attrs={"class": "form-control"}),
+            "academic_year": forms.TextInput(attrs={"class": "form-control"}),
+            "emergency_contact_name": forms.TextInput(attrs={"class": "form-control"}),
+            "emergency_contact_phone": forms.TextInput(attrs={"class": "form-control"}),
+            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+        }
+
+
+class BookingDatesForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lock_in_months = None
+        instance = getattr(self, "instance", None)
+        if instance and getattr(instance, "bed_id", None):
+            pg = instance.bed.room.pg
+            self.lock_in_months = pg.lock_in_period or None
+        if self.lock_in_months:
+            for field in self.fields.values():
+                field.disabled = True
+                field.widget.attrs["readonly"] = True
+
+    class Meta:
+        model = Booking
+        fields = ["check_in", "check_out"]
+        widgets = {
+            "check_in": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "check_out": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        check_in = cleaned_data.get("check_in")
+        check_out = cleaned_data.get("check_out")
+        if check_in and check_out and check_out < check_in:
+            self.add_error("check_out", "Check-out date cannot be before check-in date.")
+        lock_in = getattr(self, "lock_in_months", None)
+        if lock_in and check_in:
+            expected_checkout = add_months(check_in, lock_in)
+            if not check_out or check_out != expected_checkout:
+                message = (
+                    f"Check-out must be exactly {lock_in} month{'s' if lock_in != 1 else ''} after check-in."
+                )
+                self.add_error("check_out", message)
+                cleaned_data["check_out"] = expected_checkout
+        return cleaned_data
+
+
+__all__ = [
+    "RegisterForm",
+    "OfflineBookingForm",
+    "AddRoomForm",
+    "AddBedForm",
+    "StudentBasicForm",
+    "StudentProfileForm",
+    "BookingDatesForm",
+    "PropertyForm",
+    "AMENITY_CHOICES",
+    "ReviewForm",
+]
