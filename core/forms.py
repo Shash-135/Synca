@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from string import ascii_uppercase
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from PIL import Image, UnidentifiedImageError
 
@@ -587,9 +589,14 @@ class BookingDatesForm(forms.ModelForm):
             pg = instance.bed.room.pg
             self.lock_in_months = pg.lock_in_period or None
         if self.lock_in_months:
-            for field in self.fields.values():
-                field.disabled = True
-                field.widget.attrs["readonly"] = True
+            check_in = None
+            try:
+                check_in = getattr(instance, "check_in", None)
+            except Exception:  # pragma: no cover - defensive
+                check_in = None
+            if check_in:
+                min_checkout = add_months(check_in, self.lock_in_months)
+                self.fields["check_out"].widget.attrs["min"] = min_checkout.isoformat()
 
     class Meta:
         model = Booking
@@ -603,17 +610,84 @@ class BookingDatesForm(forms.ModelForm):
         cleaned_data = super().clean()
         check_in = cleaned_data.get("check_in")
         check_out = cleaned_data.get("check_out")
-        if check_in and check_out and check_out < check_in:
-            self.add_error("check_out", "Check-out date cannot be before check-in date.")
+        if check_in and check_out and check_out <= check_in:
+            self.add_error("check_out", "Check-out date must be after check-in date.")
         lock_in = getattr(self, "lock_in_months", None)
         if lock_in and check_in:
-            expected_checkout = add_months(check_in, lock_in)
-            if not check_out or check_out != expected_checkout:
+            min_checkout = add_months(check_in, lock_in)
+            if not check_out:
+                cleaned_data["check_out"] = min_checkout
+            elif check_out < min_checkout:
                 message = (
-                    f"Check-out must be exactly {lock_in} month{'s' if lock_in != 1 else ''} after check-in."
+                    f"Minimum stay is {lock_in} month{'s' if lock_in != 1 else ''}. "
+                    f"Select a check-out date on or after {min_checkout.strftime('%b %d, %Y')}."
                 )
                 self.add_error("check_out", message)
-                cleaned_data["check_out"] = expected_checkout
+        return cleaned_data
+
+
+class BookingRequestDatesForm(forms.ModelForm):
+    """Date-range capture for initial booking request."""
+
+    def __init__(self, *args, bed: Bed | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if bed is None:
+            raise ValueError("BookingRequestDatesForm requires a bed instance")
+        self.bed = bed
+        self.lock_in_months = bed.room.pg.lock_in_period or None
+
+        today = timezone.now().date()
+        if not self.initial.get("check_in"):
+            self.initial["check_in"] = today
+        if not self.initial.get("check_out"):
+            if self.lock_in_months:
+                self.initial["check_out"] = add_months(self.initial["check_in"], self.lock_in_months)
+            else:
+                self.initial["check_out"] = today + timedelta(days=30)
+
+        self.fields["check_in"].required = True
+        self.fields["check_out"].required = True
+
+        self.fields["check_in"].widget.attrs["min"] = today.isoformat()
+        if self.lock_in_months:
+            min_checkout = add_months(self.initial["check_in"], self.lock_in_months)
+            self.fields["check_out"].widget.attrs["min"] = min_checkout.isoformat()
+
+    class Meta:
+        model = Booking
+        fields = ["check_in", "check_out"]
+        widgets = {
+            "check_in": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "check_out": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        check_in = cleaned_data.get("check_in")
+        check_out = cleaned_data.get("check_out")
+
+        today = timezone.now().date()
+        if check_in and check_in < today:
+            self.add_error("check_in", "Check-in date cannot be in the past.")
+
+        lock_in = getattr(self, "lock_in_months", None)
+        if lock_in and check_in:
+            min_checkout = add_months(check_in, lock_in)
+            if not check_out:
+                cleaned_data["check_out"] = min_checkout
+                return cleaned_data
+            if check_out < min_checkout:
+                self.add_error(
+                    "check_out",
+                    (
+                        f"Minimum stay is {lock_in} month{'s' if lock_in != 1 else ''}. "
+                        f"Select a check-out date on or after {min_checkout.strftime('%b %d, %Y')}."
+                    ),
+                )
+            return cleaned_data
+
+        if check_in and check_out and check_out <= check_in:
+            self.add_error("check_out", "Check-out date must be after check-in date.")
         return cleaned_data
 
 
@@ -625,6 +699,7 @@ __all__ = [
     "StudentBasicForm",
     "StudentProfileForm",
     "BookingDatesForm",
+    "BookingRequestDatesForm",
     "PropertyForm",
     "AMENITY_CHOICES",
     "ReviewForm",

@@ -54,6 +54,21 @@
                             <dt class="col-5 text-muted">Bed</dt>
                             <dd class="col-7">{{ booking.bed.bed_identifier }}</dd>
 
+                            <dt class="col-5 text-muted">Check-in</dt>
+                            <dd class="col-7">{{ booking.check_in|date:"M d, Y"|default:"—" }}</dd>
+
+                            <dt class="col-5 text-muted">Check-out</dt>
+                            <dd class="col-7">{{ booking.check_out|date:"M d, Y"|default:"—" }}</dd>
+
+                            <dt class="col-5 text-muted">Stay Length</dt>
+                            <dd class="col-7">
+                                {% if booking.requested_days is not None %}
+                                {{ booking.requested_days }} day{{ booking.requested_days|pluralize }}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </dd>
+
                             <dt class="col-5 text-muted">Monthly Rent</dt>
                             <dd class="col-7">
                                 <i class="bi bi-currency-rupee"></i>{{ monthly_rent|floatformat:0 }}

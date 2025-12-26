@@ -172,15 +172,32 @@ class Booking(models.Model):
         if self.status == "cancelled":
             return
         today = timezone.now().date()
-        self.status = "active"
+        if self.check_in and self.check_in > today:
+            self.status = "upcoming"
+        else:
+            self.status = "active"
         if not self.check_in:
             self.check_in = today
         lock_in = self.lock_in_period_months
         if lock_in:
-            self.check_out = add_months(self.check_in, lock_in)
+            min_checkout = add_months(self.check_in, lock_in)
+            if not self.check_out or self.check_out < min_checkout:
+                self.check_out = min_checkout
         elif not self.check_out:
             self.check_out = self.check_in + timedelta(days=30)
         self.save(update_fields=["status", "check_in", "check_out"])
+
+    @property
+    def requested_days(self) -> int | None:
+        """Return requested stay length in days (check_out - check_in).
+
+        For example, check-in Jan 1 and check-out Jan 2 yields 1 day.
+        """
+
+        if not self.check_in or not self.check_out:
+            return None
+        delta_days = (self.check_out - self.check_in).days
+        return delta_days if delta_days >= 0 else None
 
     def mark_cancelled(self) -> None:
         self.status = "cancelled"

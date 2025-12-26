@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from urllib.parse import urlsplit
 
 from django.contrib import messages
@@ -17,6 +18,7 @@ from django.views.generic import DetailView, FormView, RedirectView, TemplateVie
 from .decorators import owner_required, student_required
 from .forms import (
     AMENITY_CHOICES,
+    BookingRequestDatesForm,
     OfflineBookingForm,
     PropertyForm,
     RegisterForm,
@@ -55,14 +57,34 @@ class BookingRequestView(TemplateView):
         context = super().get_context_data(**kwargs)
         service = self.service_class(self.request.user)
         quote = service.build_quote(self.bed)
+        dates_form = kwargs.get("dates_form")
+        if dates_form is None:
+            dates_form = BookingRequestDatesForm(bed=self.bed)
+
+        daily_rent = (quote.monthly_rent or Decimal("0")) / Decimal("30")
+        check_in = dates_form.initial.get("check_in")
+        check_out = dates_form.initial.get("check_out")
+        requested_days = None
+        if check_in and check_out:
+            try:
+                requested_days = max(0, (check_out - check_in).days)
+            except Exception:  # pragma: no cover - defensive
+                requested_days = None
+        stay_rent = (daily_rent * Decimal(requested_days or 0)) if requested_days is not None else Decimal("0")
+        estimated_total = stay_rent + (quote.security_deposit if quote.deposit_applicable else Decimal("0"))
         context.update(
             {
                 "bed": self.bed,
                 "monthly_rent": quote.monthly_rent,
+                "daily_rent": daily_rent,
+                "requested_days": requested_days,
+                "stay_rent": stay_rent,
+                "estimated_total": estimated_total,
                 "security_deposit": quote.security_deposit,
                 "total_amount": quote.total_amount,
                 "deposit_applicable": quote.deposit_applicable,
                 "lock_in_period": quote.lock_in_period,
+                "dates_form": dates_form,
             }
         )
         return context
@@ -70,8 +92,18 @@ class BookingRequestView(TemplateView):
     def post(self, request, *args, **kwargs):
         self.bed.refresh_from_db(fields=["is_available"])
         service = self.service_class(request.user)
+
+        dates_form = BookingRequestDatesForm(request.POST, bed=self.bed)
+        if not dates_form.is_valid():
+            context = self.get_context_data(dates_form=dates_form)
+            return self.render_to_response(context)
+
         try:
-            booking = service.create_booking(self.bed)
+            booking = service.create_booking(
+                self.bed,
+                check_in=dates_form.cleaned_data["check_in"],
+                check_out=dates_form.cleaned_data["check_out"],
+            )
         except ValueError:
             messages.error(request, "Sorry, this bed has already been booked.")
             return redirect("pg_detail", pk=self.bed.room.pg.id)

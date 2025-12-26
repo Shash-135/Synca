@@ -486,23 +486,17 @@ class BookingRequestService:
             lock_in_period=lock_in_period,
         )
 
-    def create_booking(self, bed: Bed) -> Booking:
+    def create_booking(self, bed: Bed, *, check_in: date, check_out: date) -> Booking:
         if not bed.is_available:
             raise ValueError("Selected bed has already been booked.")
 
-        today = timezone.now().date()
-        lock_in_months = bed.room.pg.lock_in_period or 0
-        if lock_in_months > 0:
-            checkout_date = add_months(today, lock_in_months)
-        else:
-            checkout_date = today + timedelta(days=30)
         booking = Booking.objects.create(
             user=self.user,
             bed=bed,
             booking_type="Online",
             status="pending",
-            check_in=today,
-            check_out=checkout_date,
+            check_in=check_in,
+            check_out=check_out,
         )
         bed.is_available = False
         bed.save(update_fields=["is_available"])

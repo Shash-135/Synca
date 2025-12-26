@@ -274,6 +274,12 @@
                                         <p class="mb-1">Room {{ booking.bed.room.room_number }} · Bed {{ booking.bed.bed_identifier }}</p>
                                         <p class="mb-1">Booked on {{ booking.booking_date|date:"M d, Y" }}</p>
                                         <p class="mb-1">
+                                            Stay: {{ booking.check_in|date:"M d, Y"|default:"—" }} → {{ booking.check_out|date:"M d, Y"|default:"—" }}
+                                            {% if booking.requested_days is not None %}
+                                            · {{ booking.requested_days }} day{{ booking.requested_days|pluralize }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="mb-1">
                                             Tenant: 
                                             {% if booking.user %}
                                                 <strong>{{ booking.user.get_full_name|default:booking.user.username }}</strong>
