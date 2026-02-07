@@ -12,6 +12,7 @@ Key highlights:
 - Granular room/bed model with automated occupancy tracking.
 - Owner workflow for publishing properties, adding rooms/beds, and recording offline bookings.
 - Student portal with profile management, booking history, and self-serve date updates/cancellations.
+- Password reset flow with email delivery (console backend by default).
 - Responsive UI built with Bootstrap 5 and custom styling.
 
 ## Feature Snapshot
@@ -77,6 +78,14 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DJANGO_SECRET_KEY=replace-me
 DJANGO_DEBUG=True
+# Email (defaults to console backend for dev)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+DEFAULT_FROM_EMAIL=no-reply@synca.local
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+EMAIL_USE_TLS=True
 ```
 Update `synca_project/settings.py` to read from these variables for production hardening if needed.
 
@@ -105,6 +114,11 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) and log in with a student or owner account.
+
+### 9. Password Reset Emails
+- In development, reset emails use the console backend; check your runserver logs for the reset link.
+- For real email delivery, set `EMAIL_BACKEND` to `django.core.mail.backends.smtp.EmailBackend` and provide SMTP settings (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`).
+- The reset views live under `/password-reset/` and use the templates in `templates/auth/`.
 
 ---
 
